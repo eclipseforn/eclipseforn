@@ -1,43 +1,54 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minha Loja</title>
+  <meta charset="UTF-8">
+  <title>Minha Loja</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body { margin:0; font-family:Arial; background:#0b0f1a; color:white; }
-header { text-align:center; padding:30px; background:linear-gradient(135deg,#2563eb,#7c3aed); }
-.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
-.card { background:#111827; padding:15px; border-radius:10px; text-align:center; }
-.preco { color:#22c55e; font-weight:bold; font-size:20px; }
-.btn { display:inline-block; margin-top:10px; padding:8px 15px; background:#2563eb; color:white; text-decoration:none; border-radius:6px; }
-</style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
-<body>
 
-<header>
-<h1>🚀 Minha Loja Digital</h1>
-</header>
+<body style="font-family: Arial; margin:0; padding:20px; background:#f5f5f5;">
 
-<section class="grid" id="produtos"></section>
+  <h1 style="text-align:center;">🛍 Minha Loja</h1>
 
-<script>
-let container = document.getElementById("produtos");
-let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+  <div id="lista-produtos"></div>
 
-produtos.forEach(prod => {
-    container.innerHTML += `
-        <div class="card">
-            <h3>${prod.nome}</h3>
-            <p class="preco">R$ ${prod.preco}</p>
-            <a href="https://wa.me/5531993178577?text=Olá,%20tenho%20interesse%20no%20${prod.nome}" class="btn">
-            Comprar
-            </a>
-        </div>
-    `;
-});
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
+      authDomain: "minha-loja-digital1.firebaseapp.com",
+      projectId: "minha-loja-digital1",
+      storageBucket: "minha-loja-digital1.firebasestorage.app",
+      messagingSenderId: "119834670597",
+      appId: "1:119834670597:web:36edb828d7fdded6678e6c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function carregarProdutos() {
+      const lista = document.getElementById("lista-produtos");
+      lista.innerHTML = "";
+
+      db.collection("produtos").get().then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+
+          lista.innerHTML += `
+            <div style="background:white;padding:15px;margin:10px 0;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+              <h3>${data.nome}</h3>
+              <p><strong>R$ ${data.preco}</strong></p>
+            </div>
+          `;
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", carregarProdutos);
+  </script>
 
 </body>
 </html>
