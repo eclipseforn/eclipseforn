@@ -13,21 +13,31 @@
 
   <h1>🔐 Painel Admin</h1>
 
-  <h3>Adicionar Produto</h3>
+  <div style="background:white;padding:20px;border-radius:10px;margin-bottom:30px;">
+    <h3>Adicionar Produto</h3>
 
-  <input type="text" id="nome" placeholder="Nome do produto" style="padding:10px;width:100%;margin-bottom:10px;">
-  
-  <input type="number" id="preco" placeholder="Preço" style="padding:10px;width:100%;margin-bottom:10px;">
+    <input type="text" id="nome" placeholder="Nome do produto"
+      style="padding:10px;width:100%;margin-bottom:10px;">
 
-  <input type="text" id="categoria" placeholder="Digite a categoria (ex: Promoção)" 
-    style="padding:10px;width:100%;margin-bottom:10px;">
+    <input type="number" id="preco" placeholder="Preço"
+      style="padding:10px;width:100%;margin-bottom:10px;">
 
-  <input type="file" id="imagem" accept="image/*" style="margin-bottom:10px;">
-  
-  <button onclick="cadastrarProduto()" 
-    style="padding:10px;width:100%;background:green;color:white;border:none;border-radius:5px;">
-    Cadastrar Produto
-  </button>
+    <input type="text" id="categoria" placeholder="Categoria"
+      style="padding:10px;width:100%;margin-bottom:10px;">
+
+    <input type="file" id="imagem" accept="image/*"
+      style="margin-bottom:10px;">
+
+    <button onclick="cadastrarProduto()"
+      style="padding:10px;width:100%;background:green;color:white;border:none;border-radius:5px;">
+      Cadastrar Produto
+    </button>
+  </div>
+
+  <div style="background:white;padding:20px;border-radius:10px;">
+    <h3>Produtos Cadastrados</h3>
+    <div id="lista-admin"></div>
+  </div>
 
   <script>
     const firebaseConfig = {
@@ -45,7 +55,7 @@
     function cadastrarProduto() {
       const nome = document.getElementById("nome").value;
       const preco = document.getElementById("preco").value;
-      const categoria = document.getElementById("categoria").value.trim();
+      const categoria = document.getElementById("categoria").value;
       const arquivo = document.getElementById("imagem").files[0];
 
       if (!nome || !preco || !categoria || !arquivo) {
@@ -68,11 +78,49 @@
           document.getElementById("preco").value = "";
           document.getElementById("categoria").value = "";
           document.getElementById("imagem").value = "";
+          carregarAdmin();
         });
       };
 
       reader.readAsDataURL(arquivo);
     }
+
+    function excluirProduto(id) {
+      if (confirm("Tem certeza que deseja excluir?")) {
+        db.collection("produtos").doc(id).delete().then(() => {
+          carregarAdmin();
+        });
+      }
+    }
+
+    function carregarAdmin() {
+      const lista = document.getElementById("lista-admin");
+      lista.innerHTML = "";
+
+      db.collection("produtos").orderBy("criadoEm", "desc").get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+
+          lista.innerHTML += `
+            <div style="border:1px solid #ddd;padding:10px;margin-bottom:10px;border-radius:8px;display:flex;gap:10px;align-items:center;">
+              <img src="${data.imagem}" style="width:70px;height:70px;object-fit:cover;border-radius:5px;">
+              <div style="flex:1;">
+                <strong>${data.nome}</strong><br>
+                Categoria: ${data.categoria}<br>
+                R$ ${data.preco}
+              </div>
+              <button onclick="excluirProduto('${doc.id}')"
+                style="background:red;color:white;border:none;padding:5px 10px;border-radius:5px;">
+                Excluir
+              </button>
+            </div>
+          `;
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", carregarAdmin);
   </script>
 
 </body>
