@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Painel de Pedidos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<style>
+body { font-family:Arial; background:#f4f6f9; margin:0; }
+header { background:#111; color:white; padding:15px; }
+.container { padding:20px; max-width:1100px; margin:auto; }
+.card {
+  background:white;
+  padding:15px;
+  margin-bottom:15px;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+button {
+  padding:6px 10px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  margin-right:5px;
+}
+.btn-green { background:green; color:white; }
+.btn-red { background:red; color:white; }
+select { padding:5px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  📦 Painel de Pedidos (Admin)
+</header>
+
+<div class="container">
+  <div id="pedidos"></div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
+  authDomain: "minha-loja-digital1.firebaseapp.com",
+  projectId: "minha-loja-digital1",
+  storageBucket: "minha-loja-digital1.firebasestorage.app",
+  messagingSenderId: "119834670597",
+  appId: "1:119834670597:web:36edb828d7fdded6678e6c"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+function carregarPedidos() {
+  const div = document.getElementById("pedidos");
+  div.innerHTML = "";
+
+  db.collection("pedidos").orderBy("data","desc").get()
+  .then(snapshot => {
+    snapshot.forEach(doc => {
+
+      const p = doc.data();
+      let itensHTML = "";
+
+      p.itens.forEach(item => {
+        itensHTML += `${item.nome} - R$ ${item.preco}<br>`;
+      });
+
+      div.innerHTML += `
+        <div class="card">
+          <strong>Cliente:</strong> ${p.email}<br>
+          <strong>Data:</strong> ${new Date(p.data.seconds*1000).toLocaleString()}<br>
+          <strong>Status:</strong>
+          <select onchange="alterarStatus('${doc.id}', this.value)">
+            <option ${p.status=="Pendente"?"selected":""}>Pendente</option>
+            <option ${p.status=="Pago"?"selected":""}>Pago</option>
+            <option ${p.status=="Enviado"?"selected":""}>Enviado</option>
+          </select>
+          <hr>
+          ${itensHTML}
+          <br>
+          <button onclick="excluirPedido('${doc.id}')" class="btn-red">
+            Excluir Pedido
+          </button>
+        </div>
+      `;
+    });
+  });
+}
+
+function alterarStatus(id, status) {
+  db.collection("pedidos").doc(id).update({
+    status: status
+  }).then(() => {
+    alert("Status atualizado!");
+  });
+}
+
+function excluirPedido(id) {
+  if(confirm("Deseja excluir este pedido?")) {
+    db.collection("pedidos").doc(id).delete()
+    .then(() => {
+      alert("Pedido excluído!");
+      carregarPedidos();
+    });
+  }
+}
+
+carregarPedidos();
+</script>
+
+</body>
+</html>
