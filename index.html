@@ -5,13 +5,9 @@
 <title>Minha Loja</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
 <style>
 body { margin:0; font-family:Arial; background:#f4f6f9; }
-header { background:#111; color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; }
+header { background:#111; color:white; padding:15px; text-align:center; }
 .container { padding:20px; max-width:1100px; margin:auto; }
 .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px; }
 .card { background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
@@ -19,136 +15,74 @@ header { background:#111; color:white; padding:15px; display:flex; justify-conte
 .card-body { padding:15px; }
 button { padding:8px 12px; border:none; border-radius:5px; cursor:pointer; margin-top:5px; }
 .btn-dark { background:#111; color:white; }
-.btn-green { background:green; color:white; }
+.btn-green { background:#25D366; color:white; }
 .btn-red { background:red; color:white; }
 .area { background:white; padding:20px; border-radius:8px; margin-top:20px; }
-input { width:100%; padding:10px; margin-bottom:10px; }
 </style>
 </head>
 
 <body>
 
 <header>
-  <div>🛍 Minha Loja</div>
-  <div id="user-info"></div>
+🛍 Minha Loja
 </header>
 
 <div class="container">
 
-  <div id="login-area" class="area">
-    <h3>Entrar ou Criar Conta</h3>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="senha" placeholder="Senha">
-    <button onclick="login()" class="btn-dark">Entrar</button>
-    <button onclick="registrar()" class="btn-green">Criar Conta</button>
-  </div>
+<h2>Produtos</h2>
 
-  <div id="loja-area" style="display:none;">
+<div class="grid" id="lista">
 
-    <h2>Produtos</h2>
-    <div class="grid" id="lista"></div>
-
-    <div class="area">
-      <h3>🛒 Carrinho</h3>
-      <div id="carrinho"></div>
-      <h4 id="total">Total: R$ 0</h4>
-      <button onclick="finalizarCompra()" class="btn-green">
-        Finalizar Compra
+  <div class="card">
+    <img src="https://via.placeholder.com/300x200">
+    <div class="card-body">
+      <h4>Produto 1</h4>
+      <p>R$ 50</p>
+      <button onclick="addCarrinho('Produto 1', 50)" class="btn-dark">
+        Adicionar
       </button>
     </div>
+  </div>
 
-    <div class="area">
-      <h3>📦 Meus Pedidos</h3>
-      <div id="pedidos"></div>
+  <div class="card">
+    <img src="https://via.placeholder.com/300x200">
+    <div class="card-body">
+      <h4>Produto 2</h4>
+      <p>R$ 80</p>
+      <button onclick="addCarrinho('Produto 2', 80)" class="btn-dark">
+        Adicionar
+      </button>
     </div>
-
   </div>
 
 </div>
 
+<div class="area">
+<h3>🛒 Carrinho</h3>
+<div id="carrinho"></div>
+<h4 id="total">Total: R$ 0</h4>
+<button onclick="enviarWhatsApp()" class="btn-green">
+Finalizar pelo WhatsApp
+</button>
+</div>
+
+</div>
+
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
-  authDomain: "minha-loja-digital1.firebaseapp.com",
-  projectId: "minha-loja-digital1",
-  storageBucket: "minha-loja-digital1.firebasestorage.app",
-  messagingSenderId: "119834670597",
-  appId: "1:119834670597:web:36edb828d7fdded6678e6c"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
-const auth = firebase.auth();
 
 let carrinho = [];
 
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("login-area").style.display = "none";
-    document.getElementById("loja-area").style.display = "block";
-    document.getElementById("user-info").innerHTML =
-      user.email + ' <button onclick="logout()" class="btn-red">Sair</button>';
-    carregarProdutos();
-    carregarPedidos();
-  } else {
-    document.getElementById("login-area").style.display = "block";
-    document.getElementById("loja-area").style.display = "none";
-  }
-});
-
-function registrar() {
-  auth.createUserWithEmailAndPassword(
-    document.getElementById("email").value,
-    document.getElementById("senha").value
-  ).catch(e => alert(e.message));
-}
-
-function login() {
-  auth.signInWithEmailAndPassword(
-    document.getElementById("email").value,
-    document.getElementById("senha").value
-  ).catch(e => alert(e.message));
-}
-
-function logout() {
-  auth.signOut();
-}
-
-function carregarProdutos() {
-  db.collection("produtos").get().then(snapshot => {
-    const div = document.getElementById("lista");
-    div.innerHTML = "";
-
-    snapshot.forEach(doc => {
-      const p = doc.data();
-      div.innerHTML += `
-        <div class="card">
-          <img src="${p.imagem}">
-          <div class="card-body">
-            <h4>${p.nome}</h4>
-            <p>R$ ${p.preco}</p>
-            <button onclick="addCarrinho('${p.nome}', ${p.preco})" class="btn-dark">
-              Adicionar
-            </button>
-          </div>
-        </div>
-      `;
-    });
-  });
-}
-
-function addCarrinho(nome, preco) {
+function addCarrinho(nome, preco){
   carrinho.push({nome, preco});
   atualizarCarrinho();
 }
 
-function atualizarCarrinho() {
-  const div = document.getElementById("carrinho");
+function atualizarCarrinho(){
+  let div = document.getElementById("carrinho");
   div.innerHTML = "";
   let total = 0;
 
-  carrinho.forEach((item, i) => {
+  carrinho.forEach((item,i)=>{
     total += item.preco;
     div.innerHTML += `
       <div>
@@ -162,54 +96,35 @@ function atualizarCarrinho() {
     "Total: R$ " + total.toFixed(2);
 }
 
-function remover(i) {
+function remover(i){
   carrinho.splice(i,1);
   atualizarCarrinho();
 }
 
-function finalizarCompra() {
-  const user = auth.currentUser;
+function enviarWhatsApp(){
 
-  if (carrinho.length === 0) {
+  if(carrinho.length == 0){
     alert("Carrinho vazio!");
     return;
   }
 
-  db.collection("pedidos").add({
-    userId: user.uid,
-    email: user.email,
-    itens: carrinho,
-    data: new Date(),
-    status: "Pendente"
-  }).then(() => {
-    alert("Pedido realizado com sucesso!");
-    carrinho = [];
-    atualizarCarrinho();
-    carregarPedidos();
+  let mensagem = "Olá, quero fazer um pedido:%0A%0A";
+  let total = 0;
+
+  carrinho.forEach(item=>{
+    mensagem += "- " + item.nome + " - R$ " + item.preco + "%0A";
+    total += item.preco;
   });
+
+  mensagem += "%0ATotal: R$ " + total.toFixed(2);
+
+  let numero = "5531993178577";
+
+  let link = "https://wa.me/" + numero + "?text=" + mensagem;
+
+  window.open(link, "_blank");
 }
 
-function carregarPedidos() {
-  const user = auth.currentUser;
-  const div = document.getElementById("pedidos");
-  div.innerHTML = "";
-
-  db.collection("pedidos")
-    .where("userId","==",user.uid)
-    .get()
-    .then(snapshot => {
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        div.innerHTML += `
-          <div style="margin-bottom:10px;">
-            Pedido em ${new Date(p.data.seconds*1000).toLocaleString()}
-            - Status: ${p.status}
-            (${p.itens.length} itens)
-          </div>
-        `;
-      });
-    });
-}
 </script>
 
 </body>
