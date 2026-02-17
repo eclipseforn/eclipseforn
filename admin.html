@@ -1,144 +1,62 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Admin</title>
+  <meta charset="UTF-8">
+  <title>Admin - Minha Loja</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-    background: #0f172a;
-    font-family: Arial, sans-serif;
-    color: white;
-    padding: 20px;
-}
-
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 6px;
-    border: none;
-}
-
-button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.add-btn {
-    background: #22c55e;
-    color: white;
-}
-
-.delete-btn {
-    background: #ef4444;
-    color: white;
-    margin-top: 10px;
-}
-
-.card {
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 15px;
-}
-
-img {
-    width: 100%;
-    border-radius: 6px;
-    margin-top: 10px;
-}
-</style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
-<body>
 
-<h1>Painel de Produtos</h1>
+<body style="font-family: Arial; margin:0; padding:20px; background:#f5f5f5;">
 
-<input type="text" id="nome" placeholder="Nome do produto">
-<input type="text" id="preco" placeholder="Preço">
-<textarea id="descricao" placeholder="Descrição"></textarea>
+  <h1>🔐 Painel Admin</h1>
 
-<input type="file" id="imagem" accept="image/*">
+  <input type="text" id="nome" placeholder="Nome do produto" style="padding:10px;width:100%;margin-bottom:10px;">
+  <input type="number" id="preco" placeholder="Preço" style="padding:10px;width:100%;margin-bottom:10px;">
+  <button onclick="cadastrarProduto()" style="padding:10px;width:100%;background:green;color:white;border:none;border-radius:5px;">
+    Cadastrar Produto
+  </button>
 
-<button class="add-btn" onclick="adicionarProduto()">Adicionar Produto</button>
-
-<div id="listaProdutos"></div>
-
-<script>
-
-function carregarProdutos() {
-    const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
-    const lista = document.getElementById("listaProdutos");
-    lista.innerHTML = "";
-
-    produtos.forEach((produto, index) => {
-        lista.innerHTML += `
-            <div class="card">
-                <h3>${produto.nome}</h3>
-                <p><strong>R$ ${produto.preco}</strong></p>
-                <p>${produto.descricao}</p>
-                ${produto.imagem ? `<img src="${produto.imagem}">` : ""}
-                <button class="delete-btn" onclick="excluirProduto(${index})">Excluir</button>
-            </div>
-        `;
-    });
-}
-
-function adicionarProduto() {
-    const nome = document.getElementById("nome").value;
-    const preco = document.getElementById("preco").value;
-    const descricao = document.getElementById("descricao").value;
-    const imagemInput = document.getElementById("imagem");
-
-    if (!nome || !preco) {
-        alert("Preencha nome e preço!");
-        return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function() {
-        const imagemBase64 = reader.result;
-
-        const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
-
-        produtos.push({
-            nome,
-            preco,
-            descricao,
-            imagem: imagemBase64
-        });
-
-        localStorage.setItem("produtos", JSON.stringify(produtos));
-
-        document.getElementById("nome").value = "";
-        document.getElementById("preco").value = "";
-        document.getElementById("descricao").value = "";
-        imagemInput.value = "";
-
-        carregarProdutos();
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
+      authDomain: "minha-loja-digital1.firebaseapp.com",
+      projectId: "minha-loja-digital1",
+      storageBucket: "minha-loja-digital1.firebasestorage.app",
+      messagingSenderId: "119834670597",
+      appId: "1:119834670597:web:36edb828d7fdded6678e6c"
     };
 
-    if (imagemInput.files[0]) {
-        reader.readAsDataURL(imagemInput.files[0]);
-    } else {
-        reader.onload();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function cadastrarProduto() {
+      const nome = document.getElementById("nome").value;
+      const preco = document.getElementById("preco").value;
+
+      if (!nome || !preco) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      db.collection("produtos").add({
+        nome: nome,
+        preco: parseFloat(preco),
+        criadoEm: new Date()
+      })
+      .then(() => {
+        alert("Produto cadastrado!");
+        document.getElementById("nome").value = "";
+        document.getElementById("preco").value = "";
+      })
+      .catch((error) => {
+        alert("Erro: " + error);
+      });
     }
-}
-
-function excluirProduto(index) {
-    const produtos = JSON.parse(localStorage.getItem("produtos")) || [];
-    produtos.splice(index, 1);
-    localStorage.setItem("produtos", JSON.stringify(produtos));
-    carregarProdutos();
-}
-
-carregarProdutos();
-
-</script>
+  </script>
 
 </body>
 </html>
