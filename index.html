@@ -3,44 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loja Oficial | José Ricardo</title>
-<link rel="stylesheet" href="style.css">
+<title>Minha Loja Digital</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0f1a;
+    color: white;
+}
+
+header {
+    text-align: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+header h1 {
+    margin: 0;
+}
+
+.produtos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.card {
+    background: #111827;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    border: 2px solid #22c55e;
+    box-shadow: 0 0 15px rgba(34,197,94,0.6);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.antigo {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+.preco {
+    font-size: 22px;
+    font-weight: bold;
+    color: #22c55e;
+}
+
+.pix {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.whatsapp {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    font-size: 24px;
+    padding: 15px;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 0 15px rgba(34,197,94,0.7);
+}
+</style>
 </head>
 <body>
 
-<header class="hero">
-    <h1>Transforme seu resultado agora 🚀</h1>
-    <p>Produto digital criado para quem quer evolução real.</p>
-    <a href="#comprar" class="btn">QUERO COMPRAR AGORA</a>
+<header>
+    <h1>🚀 Minha Loja Digital</h1>
+    <p>Produtos digitais, revendas e serviços</p>
 </header>
 
-<section class="beneficios">
-    <h2>Por que escolher nosso produto?</h2>
-    <ul>
-        <li>✅ Fácil de usar</li>
-        <li>✅ Resultado comprovado</li>
-        <li>✅ Suporte direto no WhatsApp</li>
-        <li>✅ Garantia de satisfação</li>
-    </ul>
+<section class="produtos">
+
+    <div class="card">
+        <img src="https://via.placeholder.com/300x180" alt="Produto">
+        <h3>Produto Digital Premium</h3>
+        <p class="antigo">R$ 97,00</p>
+        <p class="preco">R$ 37,40</p>
+        <p class="pix">À vista no PIX</p>
+        <a href="https://wa.me/5531993178577?text=Olá,%20vim%20pelo%20site%20e%20tenho%20interesse%20no%20Produto%20Digital%20Premium" class="btn">
+            Comprar
+        </a>
+    </div>
+
+    <div class="card">
+        <img src="https://via.placeholder.com/300x180" alt="Produto">
+        <h3>Serviço Especial</h3>
+        <p class="antigo">R$ 78,50</p>
+        <p class="preco">R$ 28,98</p>
+        <p class="pix">À vista no PIX</p>
+        <a href="https://wa.me/5531993178577?text=Olá,%20vim%20pelo%20site%20e%20tenho%20interesse%20no%20Serviço%20Especial" class="btn">
+            Comprar
+        </a>
+    </div>
+
+    <div class="card">
+        <img src="https://via.placeholder.com/300x180" alt="Produto">
+        <h3>Pacote Revenda</h3>
+        <p class="antigo">R$ 120,00</p>
+        <p class="preco">R$ 59,90</p>
+        <p class="pix">À vista no PIX</p>
+        <a href="https://wa.me/5531993178577?text=Olá,%20vim%20pelo%20site%20e%20quero%20informações%20sobre%20o%20Pacote%20Revenda" class="btn">
+            Comprar
+        </a>
+    </div>
+
 </section>
 
-<section class="produto">
-    <h2>O que você vai receber</h2>
-    <p>
-        Acesso completo ao material exclusivo,
-        atualizado e pronto para aplicar.
-    </p>
-</section>
-
-<section id="comprar" class="comprar">
-    <h2>Garanta agora</h2>
-    <p class="preco">R$ 97,00</p>
-    <a href="https://wa.me/5531993178577" class="btn">FALAR NO WHATSAPP</a>
-</section>
-
-<footer>
-    <p>© 2026 José Ricardo | Todos os direitos reservados</p>
-</footer>
+<a href="https://wa.me/5531993178577?text=Olá,%20vim%20pelo%20site%20e%20quero%20mais%20informações" class="whatsapp">
+💬
+</a>
 
 </body>
 </html>
