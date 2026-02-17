@@ -16,46 +16,59 @@ body{
   background:#0f172a;
   color:white;
 }
+
+/* TOPBAR */
 .topbar{
   background:#111827;
   padding:15px;
   display:flex;
   align-items:center;
 }
+
 .menu-btn{
   font-size:22px;
   cursor:pointer;
   margin-right:15px;
 }
+
+/* SIDEBAR */
 .sidebar{
   position:fixed;
-  left:-240px;
+  left:-260px;
   top:0;
-  width:240px;
+  width:260px;
   height:100%;
   background:#111827;
   padding-top:60px;
   transition:0.3s;
+  z-index:1000;
 }
+
 .sidebar div{
   padding:15px;
   cursor:pointer;
 }
+
 .sidebar div:hover{
   background:#1f2937;
 }
+
 .sidebar.active{
   left:0;
 }
+
+/* CONTENT */
 .content{
   padding:20px;
 }
+
 .card{
   background:#1f2937;
   padding:20px;
   border-radius:10px;
   margin-bottom:20px;
 }
+
 input,select{
   width:100%;
   padding:8px;
@@ -64,23 +77,30 @@ input,select{
   border:1px solid #374151;
   color:white;
 }
+
 button{
   padding:8px 12px;
   border:none;
   border-radius:6px;
   cursor:pointer;
 }
+
 .btn{background:#2563eb;color:white;}
 .btn-del{background:#dc2626;color:white;}
+
 .hidden{display:none;}
+
 table{
   width:100%;
   border-collapse:collapse;
 }
+
 th,td{
   padding:10px;
   border-bottom:1px solid #374151;
 }
+
+/* LOGIN */
 .login-box{
   max-width:300px;
   margin:100px auto;
@@ -176,6 +196,7 @@ const firebaseConfig={
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
+const sidebar=document.getElementById("sidebar");
 
 auth.onAuthStateChanged(user=>{
   if(user){
@@ -189,7 +210,7 @@ auth.onAuthStateChanged(user=>{
 
 function login(){
   auth.signInWithEmailAndPassword(email.value,senha.value)
-  .catch(e=>alert("Erro no login"));
+  .catch(()=>alert("Erro no login"));
 }
 
 function logout(){
@@ -205,32 +226,33 @@ function mostrar(sec){
     document.getElementById(s).classList.add("hidden");
   });
   document.getElementById(sec).classList.remove("hidden");
+  sidebar.classList.remove("active");
 }
+
+document.addEventListener("click", function(e){
+  if(!sidebar.contains(e.target) && 
+     !e.target.classList.contains("menu-btn")){
+      sidebar.classList.remove("active");
+  }
+});
 
 /* DASHBOARD */
 let grafico;
 db.collection("pedidos").onSnapshot(snapshot=>{
   let total=0;
-  let meses={};
-
   snapshot.forEach(doc=>{
     let p=doc.data();
     total+=p.total||0;
-    if(p.data){
-      let d=new Date(p.data.seconds*1000);
-      let mes=(d.getMonth()+1)+"/"+d.getFullYear();
-      meses[mes]=(meses[mes]||0)+(p.total||0);
-    }
   });
 
   totalVendido.innerText=total.toFixed(2);
 
   if(grafico)grafico.destroy();
-  grafico=new Chart(grafico=document.getElementById("grafico"),{
+  grafico=new Chart(document.getElementById("grafico"),{
     type:"line",
     data:{
-      labels:Object.keys(meses),
-      datasets:[{label:"Faturamento",data:Object.values(meses)}]
+      labels:["Total"],
+      datasets:[{label:"Faturamento",data:[total]}]
     }
   });
 });
