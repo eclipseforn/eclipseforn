@@ -10,166 +10,253 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:white;}
-.hidden{display:none;}
-input,select{width:100%;padding:8px;margin:5px 0;background:#111827;border:1px solid #374151;color:white;}
-button{padding:8px;border:none;background:#2563eb;color:white;border-radius:6px;cursor:pointer;margin-top:5px;}
-.card{background:#1f2937;padding:20px;border-radius:10px;margin:20px;}
-table{width:100%;border-collapse:collapse;margin-top:10px;}
-th,td{padding:10px;border-bottom:1px solid #374151;}
-.login-box{max-width:300px;margin:100px auto;background:#1f2937;padding:30px;border-radius:10px;}
-img{width:50px;height:50px;object-fit:cover;border-radius:6px;}
+body{margin:0;font-family:Arial;background:#0f172a;color:white;display:flex}
+.sidebar{
+width:220px;background:#111827;height:100vh;padding:20px;box-sizing:border-box;
+}
+.sidebar h2{margin-bottom:20px}
+.sidebar button{
+width:100%;padding:10px;margin-bottom:10px;background:#1f2937;border:none;color:white;border-radius:6px;cursor:pointer
+}
+.main{
+flex:1;padding:20px;overflow:auto
+}
+.card{
+background:#1f2937;padding:20px;border-radius:10px;margin-bottom:20px
+}
+input,select{
+width:100%;padding:8px;margin:5px 0;background:#111827;border:1px solid #374151;color:white
+}
+button.primary{
+background:#2563eb;border:none;padding:10px;border-radius:6px;color:white;cursor:pointer
+}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #374151;text-align:left}
+img{width:50px;height:50px;object-fit:cover;border-radius:6px}
+.hidden{display:none}
+.login{
+width:300px;margin:150px auto;background:#1f2937;padding:30px;border-radius:10px
+}
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+}
+.stat-box{
+background:#1f2937;padding:20px;border-radius:10px
+}
 </style>
 </head>
 <body>
 
-<div id="loginPage">
-  <div class="login-box">
-    <h2>Login Admin</h2>
-    <input id="email" placeholder="Email">
-    <input id="senha" type="password" placeholder="Senha">
-    <button onclick="login()">Entrar</button>
-  </div>
+<div id="loginPage" class="login">
+<h2>Login Admin</h2>
+<input id="email" placeholder="Email">
+<input id="senha" type="password" placeholder="Senha">
+<button class="primary" onclick="login()">Entrar</button>
 </div>
 
-<div id="painel" class="hidden">
+<div id="app" class="hidden">
+
+<div class="sidebar">
+<h2>Painel</h2>
+<button onclick="mostrar('dashboard')">📊 Dashboard</button>
+<button onclick="mostrar('produtos')">📦 Produtos</button>
+<button onclick="mostrar('categorias')">🏷 Categorias</button>
+<button onclick="mostrar('pedidos')">🛒 Pedidos</button>
+<button onclick="logout()">🚪 Sair</button>
+</div>
+
+<div class="main">
+
+<div id="dashboard" class="section">
+<h2>Dashboard</h2>
+<div class="stats">
+<div class="stat-box">Produtos: <span id="totalProdutos">0</span></div>
+<div class="stat-box">Categorias: <span id="totalCategorias">0</span></div>
+<div class="stat-box">Pedidos: <span id="totalPedidos">0</span></div>
+<div class="stat-box">Total Vendido: R$ <span id="totalVendido">0</span></div>
+</div>
+</div>
+
+<div id="produtos" class="section hidden">
+<h2>Produtos</h2>
 
 <div class="card">
-  <h3>Criar Categoria</h3>
-  <input id="cNome" placeholder="Nome da categoria">
-  <button onclick="salvarCategoria()">Salvar Categoria</button>
+<input id="pNome" placeholder="Nome">
+<input id="pPreco" type="number" placeholder="Preço">
+<input id="pEstoque" type="number" placeholder="Estoque">
+<input type="file" id="pImagem">
+<select id="pCategoria">
+<option value="">Selecione categoria</option>
+</select>
+<button class="primary" onclick="salvarProduto()">Salvar Produto</button>
 </div>
+
+<table>
+<thead>
+<tr>
+<th>Imagem</th>
+<th>Nome</th>
+<th>Preço</th>
+<th>Categoria</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="listaProdutos"></tbody>
+</table>
+</div>
+
+<div id="categorias" class="section hidden">
+<h2>Categorias</h2>
 
 <div class="card">
-  <h3>Criar Produto</h3>
-  <input id="pNome" placeholder="Nome">
-  <input id="pPreco" type="number" placeholder="Preço">
-  <input id="pEstoque" type="number" placeholder="Estoque">
-  <input type="file" id="pImagem">
-  <select id="pCategoria">
-    <option value="">Selecione uma categoria</option>
-  </select>
-  <button onclick="salvarProduto()">Salvar Produto</button>
+<input id="cNome" placeholder="Nome da categoria">
+<button class="primary" onclick="salvarCategoria()">Salvar Categoria</button>
 </div>
 
-<div class="card">
-  <h3>Produtos</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Imagem</th>
-        <th>Nome</th>
-        <th>Preço</th>
-        <th>Categoria</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tabelaProdutos"></tbody>
-  </table>
+<ul id="listaCategorias"></ul>
 </div>
 
+<div id="pedidos" class="section hidden">
+<h2>Pedidos</h2>
+<table>
+<thead>
+<tr>
+<th>Cliente</th>
+<th>Total</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody id="listaPedidos"></tbody>
+</table>
+</div>
+
+</div>
 </div>
 
 <script>
 const firebaseConfig={
-  apiKey:"AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
-  authDomain:"minha-loja-digital1.firebaseapp.com",
-  projectId:"minha-loja-digital1",
-  storageBucket:"minha-loja-digital1.appspot.com"
+apiKey:"AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
+authDomain:"minha-loja-digital1.firebaseapp.com",
+projectId:"minha-loja-digital1",
+storageBucket:"minha-loja-digital1.appspot.com"
 };
-
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+const auth=firebase.auth();
+const db=firebase.firestore();
+const storage=firebase.storage();
 
-/* LOGIN */
 auth.onAuthStateChanged(user=>{
-  if(user){
-    loginPage.classList.add("hidden");
-    painel.classList.remove("hidden");
-  }else{
-    loginPage.classList.remove("hidden");
-    painel.classList.add("hidden");
-  }
+if(user){
+loginPage.classList.add("hidden");
+app.classList.remove("hidden");
+}else{
+loginPage.classList.remove("hidden");
+app.classList.add("hidden");
+}
 });
 
 function login(){
-  auth.signInWithEmailAndPassword(email.value,senha.value)
-  .catch(e=>alert(e.message));
+auth.signInWithEmailAndPassword(email.value,senha.value)
+.catch(e=>alert(e.message));
 }
 
-/* ===== CATEGORIAS ===== */
+function logout(){auth.signOut();}
 
+function mostrar(sec){
+document.querySelectorAll(".section").forEach(s=>s.classList.add("hidden"));
+document.getElementById(sec).classList.remove("hidden");
+}
+
+/* DASHBOARD */
+db.collection("produtos").onSnapshot(s=>{
+totalProdutos.innerText=s.size;
+});
+db.collection("categorias").onSnapshot(s=>{
+totalCategorias.innerText=s.size;
+});
+db.collection("vendas").onSnapshot(s=>{
+totalPedidos.innerText=s.size;
+let soma=0;
+s.forEach(doc=>{soma+=doc.data().total||0});
+totalVendido.innerText=soma.toFixed(2);
+});
+
+/* CATEGORIAS */
 function salvarCategoria(){
-  if(!cNome.value.trim()) return alert("Digite o nome da categoria");
-
-  db.collection("categorias").add({nome:cNome.value})
-  .then(()=>cNome.value="")
-  .catch(e=>alert(e.message));
+if(!cNome.value) return;
+db.collection("categorias").add({nome:cNome.value});
+cNome.value="";
 }
-
-db.collection("categorias").onSnapshot(snapshot=>{
-  pCategoria.innerHTML=`<option value="">Selecione uma categoria</option>`;
-  snapshot.forEach(doc=>{
-    let c=doc.data();
-    pCategoria.innerHTML+=`<option value="${c.nome}">${c.nome}</option>`;
-  });
+db.collection("categorias").onSnapshot(s=>{
+listaCategorias.innerHTML="";
+pCategoria.innerHTML="<option value=''>Selecione categoria</option>";
+s.forEach(doc=>{
+let c=doc.data();
+listaCategorias.innerHTML+=`<li>${c.nome}</li>`;
+pCategoria.innerHTML+=`<option value="${c.nome}">${c.nome}</option>`;
+});
 });
 
-/* ===== PRODUTOS ===== */
-
+/* PRODUTOS */
 async function salvarProduto(){
-  if(!pNome.value || !pPreco.value || !pCategoria.value){
-    return alert("Preencha nome, preço e categoria");
-  }
+if(!pNome.value||!pPreco.value||!pCategoria.value) return alert("Preencha os campos");
 
-  let imagemURL="";
-
-  if(pImagem.files[0]){
-    const file = pImagem.files[0];
-    const ref = storage.ref().child("produtos/"+Date.now()+"_"+file.name);
-    await ref.put(file);
-    imagemURL = await ref.getDownloadURL();
-  }
-
-  await db.collection("produtos").add({
-    nome:pNome.value,
-    preco:parseFloat(pPreco.value),
-    estoque:parseInt(pEstoque.value)||0,
-    categoria:pCategoria.value,
-    imagem:imagemURL
-  });
-
-  alert("Produto criado!");
-  pNome.value="";
-  pPreco.value="";
-  pEstoque.value="";
-  pCategoria.value="";
-  pImagem.value="";
+let url="";
+if(pImagem.files[0]){
+let file=pImagem.files[0];
+let ref=storage.ref().child("produtos/"+Date.now()+"_"+file.name);
+await ref.put(file);
+url=await ref.getDownloadURL();
 }
 
-db.collection("produtos").onSnapshot(snapshot=>{
-  tabelaProdutos.innerHTML="";
-  snapshot.forEach(doc=>{
-    let p=doc.data();
-    tabelaProdutos.innerHTML+=`
-      <tr>
-        <td>${p.imagem ? `<img src="${p.imagem}">` : ""}</td>
-        <td>${p.nome}</td>
-        <td>R$ ${p.preco}</td>
-        <td>${p.categoria}</td>
-        <td><button onclick="excluirProduto('${doc.id}')">Excluir</button></td>
-      </tr>`;
-  });
+await db.collection("produtos").add({
+nome:pNome.value,
+preco:parseFloat(pPreco.value),
+estoque:parseInt(pEstoque.value)||0,
+categoria:pCategoria.value,
+imagem:url
 });
 
-function excluirProduto(id){
-  if(confirm("Excluir produto?")){
-    db.collection("produtos").doc(id).delete();
-  }
+pNome.value="";
+pPreco.value="";
+pEstoque.value="";
+pImagem.value="";
+pCategoria.value="";
 }
+
+db.collection("produtos").onSnapshot(s=>{
+listaProdutos.innerHTML="";
+s.forEach(doc=>{
+let p=doc.data();
+listaProdutos.innerHTML+=`
+<tr>
+<td>${p.imagem?`<img src="${p.imagem}">`:""}</td>
+<td>${p.nome}</td>
+<td>R$ ${p.preco}</td>
+<td>${p.categoria}</td>
+<td><button onclick="db.collection('produtos').doc('${doc.id}').delete()">Excluir</button></td>
+</tr>
+`;
+});
+});
+
+/* PEDIDOS */
+db.collection("vendas").onSnapshot(s=>{
+listaPedidos.innerHTML="";
+s.forEach(doc=>{
+let v=doc.data();
+listaPedidos.innerHTML+=`
+<tr>
+<td>${v.cliente||"-"}</td>
+<td>R$ ${v.total||0}</td>
+<td>${v.data||"-"}</td>
+</tr>
+`;
+});
+});
 </script>
 
 </body>
