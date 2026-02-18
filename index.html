@@ -19,7 +19,6 @@ body{
   color:white;
 }
 
-/* HEADER */
 .header{
   background:rgba(10,15,30,0.9);
   padding:14px;
@@ -36,7 +35,6 @@ body{
   -webkit-text-fill-color:transparent;
 }
 
-/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -44,7 +42,6 @@ body{
   padding:12px;
 }
 
-/* ===== CATEGORIA RGB ===== */
 .categoria-titulo{
   grid-column:1/-1;
   margin:18px 0 8px;
@@ -73,7 +70,6 @@ body{
   pointer-events:none;
 }
 
-/* ===== CARD RGB REAL ===== */
 .card{
   position:relative;
   border-radius:16px;
@@ -98,85 +94,55 @@ body{
 
 .card-content{padding:8px;}
 
-.preco{
-  color:#00ffff;
-  font-weight:700;
-  font-size:18px;
-}
-
-.preco-antigo{
-  text-decoration:line-through;
-  color:#888;
-  font-size:12px;
-}
+.preco{color:#00ffff;font-weight:700;font-size:18px;}
+.preco-antigo{text-decoration:line-through;color:#888;font-size:12px;}
+.estoque{font-size:12px;color:#00ffaa;margin-top:4px;}
 
 .quantidade-box{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:6px;
-  margin-top:6px;
+  display:flex;justify-content:center;align-items:center;gap:6px;margin-top:6px;
 }
 
 .quantidade-box button{
-  width:26px;
-  height:26px;
-  border:none;
-  border-radius:8px;
+  width:26px;height:26px;border:none;border-radius:8px;
   background:linear-gradient(45deg,#00ffff,#7c3aed);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+  color:white;font-weight:bold;cursor:pointer;
 }
 
 .btn-comprar{
-  margin-top:8px;
-  width:100%;
-  padding:6px;
-  border:none;
-  border-radius:8px;
+  margin-top:8px;width:100%;padding:6px;border:none;border-radius:8px;
   background:linear-gradient(45deg,#00ffcc,#7c3aed);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+  color:white;font-weight:bold;cursor:pointer;
 }
 
-.esgotado{
-  margin-top:6px;
-  text-align:center;
-  color:#ff4d4d;
-  font-weight:bold;
-}
+.esgotado{margin-top:6px;text-align:center;color:#ff4d4d;font-weight:bold;}
 
 .cart-float{
-  position:fixed;
-  bottom:20px;
-  right:20px;
+  position:fixed;bottom:20px;right:20px;
   background:linear-gradient(45deg,#00ffff,#7c3aed);
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:24px;
-  cursor:pointer;
+  width:60px;height:60px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;cursor:pointer;
   box-shadow:0 0 20px rgba(0,255,255,0.6);
 }
 
 .cart-count{
-  position:absolute;
-  top:-5px;
-  right:-5px;
-  background:red;
-  width:20px;
-  height:20px;
-  font-size:12px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position:absolute;top:-5px;right:-5px;
+  background:red;width:20px;height:20px;
+  font-size:12px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
 }
+
+.toast{
+  position:fixed;bottom:90px;left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(45deg,#00ffff,#7c3aed);
+  padding:10px 18px;border-radius:12px;
+  font-weight:bold;box-shadow:0 0 20px rgba(0,255,255,0.6);
+  opacity:0;pointer-events:none;
+  transition:all 0.4s ease;z-index:9999;
+}
+
+.toast.show{opacity:1;bottom:110px;}
 
 @keyframes rgbBorder{
   0%{background-position:0% 50%;}
@@ -197,6 +163,8 @@ body{
 <div class="cart-count" id="cartCount">0</div>
 </div>
 
+<div id="toast" class="toast"></div>
+
 <script>
 var firebaseConfig = {
   apiKey: "AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
@@ -208,15 +176,18 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
 let carrinho = {};
+let produtosMap = {};
 
 db.collection("produtos").onSnapshot((snapshot)=>{
   const lista=document.getElementById("listaProdutos");
   lista.innerHTML="";
   let categorias={};
+  produtosMap={};
 
   snapshot.forEach(doc=>{
     let p=doc.data();
     p.id=doc.id;
+    produtosMap[p.nome]=p;
     if(!categorias[p.categoria]) categorias[p.categoria]=[];
     categorias[p.categoria].push(p);
   });
@@ -230,6 +201,7 @@ db.collection("produtos").onSnapshot((snapshot)=>{
           <img src="${p.imagem}">
           <div class="card-content">
             <div>${p.nome}</div>
+            <div class="estoque">Estoque: ${p.estoque}</div>
             <div class="preco-antigo">R$ ${(p.preco*1.5).toFixed(2)}</div>
             <div class="preco">R$ ${p.preco.toFixed(2)}</div>
             ${
@@ -239,7 +211,7 @@ db.collection("produtos").onSnapshot((snapshot)=>{
                 <span id="qtd-${p.id}">0</span>
                 <button onclick="alterarQtd('${p.id}','${p.nome}',${p.preco},${p.estoque},1)">+</button>
               </div>
-              <button class="btn-comprar" onclick="comprarDireto('${p.nome}',${p.preco})">
+              <button class="btn-comprar" onclick="comprarDireto('${p.id}','${p.nome}',${p.preco})">
               Finalizar Compra
               </button>`
               :
@@ -252,6 +224,13 @@ db.collection("produtos").onSnapshot((snapshot)=>{
   }
 });
 
+function mostrarToast(msg){
+  const toast=document.getElementById("toast");
+  toast.innerText=msg;
+  toast.classList.add("show");
+  setTimeout(()=>{toast.classList.remove("show");},2000);
+}
+
 function alterarQtd(id,nome,preco,estoque,valor){
   let span=document.getElementById("qtd-"+id);
   let qtd=parseInt(span.innerText);
@@ -260,14 +239,22 @@ function alterarQtd(id,nome,preco,estoque,valor){
   if(qtd>estoque) qtd=estoque;
   span.innerText=qtd;
 
-  if(qtd>0){carrinho[nome]={qtd,preco};}
-  else{delete carrinho[nome];}
+  if(qtd>0){
+    carrinho[nome]={qtd,preco,id};
+    if(valor>0) mostrarToast("✅ Produto adicionado ao carrinho");
+  } else {
+    delete carrinho[nome];
+  }
 
   document.getElementById("cartCount").innerText=
     Object.values(carrinho).reduce((a,b)=>a+b.qtd,0);
 }
 
-function comprarDireto(nome,preco){
+function comprarDireto(id,nome,preco){
+  db.collection("produtos").doc(id).update({
+    estoque: firebase.firestore.FieldValue.increment(-1)
+  });
+
   let mensagem=`Pedido:%0A${nome}%0AValor: R$ ${preco.toFixed(2)}`;
   window.open(`https://wa.me/5531993178577?text=${mensagem}`,"_blank");
 }
@@ -280,10 +267,17 @@ function finalizarPedido(){
     let item=carrinho[nome];
     mensagem+=`${nome} x${item.qtd}%0A`;
     total+=item.qtd*item.preco;
+
+    db.collection("produtos").doc(item.id).update({
+      estoque: firebase.firestore.FieldValue.increment(-item.qtd)
+    });
   }
 
   mensagem+=`Total: R$ ${total.toFixed(2)}`;
   window.open(`https://wa.me/5531993178577?text=${mensagem}`,"_blank");
+
+  carrinho={};
+  document.getElementById("cartCount").innerText=0;
 }
 </script>
 
