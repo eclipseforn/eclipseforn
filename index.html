@@ -8,20 +8,62 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Poppins',sans-serif;background:#0b1120;color:white;}
+
+body{
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#0b1120,#0f172a);
+  color:white;
+}
 
 /* HEADER */
-.header{background:#111827;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-weight:600;font-size:18px;}
-.icons span{margin-left:15px;cursor:pointer;font-size:18px;}
+.header{
+  background:rgba(17,24,39,0.85);
+  backdrop-filter:blur(15px);
+  padding:15px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.logo{
+  font-weight:700;
+  font-size:20px;
+  letter-spacing:1px;
+}
+
+.icons span{
+  margin-left:15px;
+  cursor:pointer;
+  font-size:18px;
+  transition:0.3s;
+}
+
+.icons span:hover{
+  transform:scale(1.2);
+}
 
 /* SEARCH */
-.search-box{padding:10px 15px;}
-.search-box input{width:100%;padding:10px;border-radius:20px;border:none;background:#1f2937;color:white;}
+.search-box{
+  padding:15px;
+}
+
+.search-box input{
+  width:100%;
+  padding:12px 15px;
+  border-radius:30px;
+  border:none;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  color:white;
+  outline:none;
+}
 
 /* CATEGORIAS */
 .categorias{
@@ -30,54 +72,137 @@ body{font-family:'Poppins',sans-serif;background:#0b1120;color:white;}
   gap:10px;
   padding:10px 15px;
 }
+
 .categorias button{
   min-width:120px;
-  padding:8px 12px;
-  border-radius:20px;
+  padding:8px 14px;
+  border-radius:25px;
   border:none;
-  background:#1f2937;
+  background:rgba(255,255,255,0.05);
   color:white;
   cursor:pointer;
   font-size:13px;
+  transition:0.3s;
 }
+
 .categorias button.active{
-  background:#2563eb;
+  background:linear-gradient(45deg,#2563eb,#00c3ff);
+}
+
+.categorias button:hover{
+  transform:scale(1.05);
 }
 
 /* GRID */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;padding:15px;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+  padding:15px;
+}
 
-/* CARD (mantido igual) */
+/* CARD */
 .card{
-  background:linear-gradient(145deg,#1e293b,#0f172a);
+  position:relative;
   border-radius:18px;
   overflow:hidden;
-  position:relative;
-  border:2px solid transparent;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
   transition:0.4s;
 }
+
+/* BORDA RGB */
 .card::before{
   content:"";
   position:absolute;
-  inset:-2px;
+  inset:0;
   border-radius:18px;
-  background:linear-gradient(45deg,#22c55e,#00ffcc,#22c55e);
-  z-index:-1;
-  animation:animarBorda 3s linear infinite;
+  padding:2px;
+  background:linear-gradient(45deg,
+    #ff0000,#ff7f00,#ffff00,#00ff00,
+    #00ffff,#0000ff,#8a2be2,#ff00ff,#ff0000);
+  background-size:400% 400%;
+  animation:rainbow 6s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
 }
-@keyframes animarBorda{
-  0%{filter:hue-rotate(0deg);}
-  100%{filter:hue-rotate(360deg);}
+
+@keyframes rainbow{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
 }
-.card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 15px 35px rgba(0,255,150,0.4);}
-.card img{width:100%;height:120px;object-fit:cover;}
-.card-content{padding:10px;}
-.badge{background:#065f46;font-size:11px;padding:4px 8px;border-radius:20px;display:inline-block;margin-bottom:5px;}
-.preco-antigo{text-decoration:line-through;color:#9ca3af;font-size:12px;}
-.preco{font-weight:600;font-size:16px;margin:5px 0;}
-.pix{font-size:11px;color:#22c55e;margin-bottom:5px;}
-button{width:100%;padding:10px;border:none;border-radius:25px;background:linear-gradient(45deg,#2563eb,#00c3ff);color:white;font-weight:700;cursor:pointer;transition:0.3s;}
-button:hover{transform:scale(1.05);box-shadow:0 0 15px #00c3ff;}
+
+.card:hover{
+  transform:translateY(-6px);
+}
+
+/* IMAGEM */
+.card img{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+}
+
+/* CONTEÚDO */
+.card-content{
+  padding:14px;
+}
+
+.badge{
+  background:rgba(34,197,94,0.15);
+  color:#22c55e;
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:20px;
+  display:inline-block;
+  margin-bottom:8px;
+  font-weight:600;
+}
+
+.preco-antigo{
+  text-decoration:line-through;
+  color:#9ca3af;
+  font-size:12px;
+}
+
+.preco{
+  font-weight:700;
+  font-size:18px;
+  margin:6px 0;
+}
+
+.pix{
+  font-size:11px;
+  color:#22c55e;
+  margin-bottom:8px;
+}
+
+/* BOTÃO */
+.card button{
+  width:100%;
+  padding:11px;
+  border:none;
+  border-radius:25px;
+  background:linear-gradient(45deg,#2563eb,#00c3ff);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.card button:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 20px rgba(0,195,255,0.6);
+}
+
+/* RESPONSIVO */
+@media(max-width:380px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
 </style>
 </head>
 <body>
@@ -113,7 +238,6 @@ const numeroWhats="5531993178577";
 let produtos=[];
 let categoriaSelecionada="";
 
-/* CARREGAR CATEGORIAS */
 db.collection("categorias").onSnapshot(snapshot=>{
   const container=document.getElementById("listaCategorias");
   container.innerHTML=`<button class="active" onclick="filtrarCategoria('')">Todas</button>`;
@@ -126,7 +250,6 @@ db.collection("categorias").onSnapshot(snapshot=>{
   });
 });
 
-/* CARREGAR PRODUTOS */
 db.collection("produtos").onSnapshot(snapshot=>{
   produtos=[];
   snapshot.forEach(doc=>{
@@ -168,7 +291,7 @@ function renderProdutos(lista){
   container.innerHTML="";
 
   lista.forEach(p=>{
-    if(!p.categoria) return; // evita produto sem categoria
+    if(!p.categoria) return;
 
     let precoAntigo=(p.preco*1.3).toFixed(2);
     let desconto=Math.floor(100-(p.preco/precoAntigo*100));
