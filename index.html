@@ -20,14 +20,14 @@ body{
   overflow-x:hidden;
 }
 
-/* FUNDO ANIMADO */
+/* FUNDO */
 body::before{
   content:"";
   position:fixed;
   width:200%;
   height:200%;
   background:radial-gradient(circle at center,#0f172a 0%,#050816 70%);
-  animation:bgMove 20s linear infinite;
+  animation:bgMove 25s linear infinite;
   z-index:-2;
 }
 
@@ -47,7 +47,6 @@ body::before{
   border-bottom:1px solid rgba(0,255,255,0.2);
 }
 
-/* LOGO ECLIPSE */
 .logo{
   font-family:'Orbitron',sans-serif;
   font-size:20px;
@@ -67,9 +66,7 @@ body::before{
 }
 
 /* SEARCH */
-.search-box{
-  padding:12px 15px;
-}
+.search-box{padding:12px 15px;}
 
 .search-box input{
   width:100%;
@@ -120,11 +117,13 @@ body::before{
   border-radius:14px;
   overflow:hidden;
   background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(12px);
-  transition:0.3s;
+  backdrop-filter:blur(14px);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+  transform-style:preserve-3d;
+  will-change:transform;
 }
 
-/* BORDA RGB NEON */
+/* BORDA RGB */
 .card::before{
   content:"";
   position:absolute;
@@ -145,9 +144,11 @@ body::before{
   100%{background-position:0% 50%;}
 }
 
+/* HOVER NEON */
 .card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 0 20px rgba(0,255,255,0.4);
+  box-shadow:
+    0 0 10px rgba(0,255,255,0.6),
+    0 0 20px rgba(124,58,237,0.5);
 }
 
 /* IMAGEM */
@@ -155,12 +156,14 @@ body::before{
   width:100%;
   height:95px;
   object-fit:cover;
+  transition:0.3s;
 }
 
-/* CONTEÚDO */
-.card-content{
-  padding:8px;
+.card:hover img{
+  filter:brightness(1.1) contrast(1.1);
 }
+
+.card-content{padding:8px;}
 
 .badge{
   font-size:9px;
@@ -210,9 +213,7 @@ body::before{
 }
 
 @media(max-width:360px){
-  .grid{
-    grid-template-columns:1fr;
-  }
+  .grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -238,7 +239,6 @@ const firebaseConfig={
 
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
-
 const numeroWhats="5531993178577";
 
 let produtos=[];
@@ -259,6 +259,7 @@ db.collection("produtos").onSnapshot(snapshot=>{
     produtos.push({...doc.data(),id:doc.id});
   });
   renderProdutos(produtos);
+  ativar3D();
 });
 
 function filtrarCategoria(cat){
@@ -282,6 +283,7 @@ function aplicarFiltros(){
     lista=lista.filter(p=>p.nome.toLowerCase().includes(texto));
   }
   renderProdutos(lista);
+  ativar3D();
 }
 
 function renderProdutos(lista){
@@ -317,6 +319,25 @@ function comprar(id,nome,preco){
     produto:nome,
     total:preco,
     data:new Date()
+  });
+}
+
+/* EFEITO 3D */
+function ativar3D(){
+  document.querySelectorAll(".card").forEach(card=>{
+    card.addEventListener("mousemove",e=>{
+      const rect=card.getBoundingClientRect();
+      const x=e.clientX-rect.left;
+      const y=e.clientY-rect.top;
+      const centerX=rect.width/2;
+      const centerY=rect.height/2;
+      const rotateX=((y-centerY)/centerY)*-8;
+      const rotateY=((x-centerX)/centerX)*8;
+      card.style.transform=`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    card.addEventListener("mouseleave",()=>{
+      card.style.transform="rotateX(0) rotateY(0)";
+    });
   });
 }
 </script>
