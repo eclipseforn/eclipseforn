@@ -12,96 +12,21 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:white;font-size:14px}
-
-.topbar{
-background:#111827;
-padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-font-size:16px;
-}
-
+.topbar{background:#111827;padding:12px;display:flex;justify-content:space-between;align-items:center;font-size:16px}
 .menuBtn{font-size:20px;cursor:pointer}
-
-.sidebar{
-position:fixed;
-top:0;
-left:-240px;
-width:220px;
-height:100%;
-background:#111827;
-padding:15px;
-transition:0.3s;
-z-index:1000;
-}
-
-.sidebar button{
-width:100%;
-padding:10px;
-margin-bottom:8px;
-background:#1f2937;
-border:none;
-color:white;
-border-radius:6px;
-font-size:14px;
-}
-
+.sidebar{position:fixed;top:0;left:-240px;width:220px;height:100%;background:#111827;padding:15px;transition:0.3s;z-index:1000}
+.sidebar button{width:100%;padding:10px;margin-bottom:8px;background:#1f2937;border:none;color:white;border-radius:6px;font-size:14px}
 .sidebar.active{left:0}
-
 .content{padding:12px}
-
-.card{
-background:#1f2937;
-padding:12px;
-border-radius:8px;
-margin-bottom:12px;
-}
-
-input,select{
-width:100%;
-padding:8px;
-margin:5px 0;
-background:#0f172a;
-border:1px solid #374151;
-color:white;
-border-radius:6px;
-font-size:14px;
-}
-
-button.primary{
-background:#2563eb;
-border:none;
-padding:10px;
-border-radius:6px;
-color:white;
-font-size:14px;
-width:100%;
-}
-
+.card{background:#1f2937;padding:12px;border-radius:8px;margin-bottom:12px}
+input,select{width:100%;padding:8px;margin:5px 0;background:#0f172a;border:1px solid #374151;color:white;border-radius:6px;font-size:14px}
+button.primary{background:#2563eb;border:none;padding:10px;border-radius:6px;color:white;font-size:14px;width:100%}
 table{width:100%;font-size:13px}
-
 th,td{padding:6px;border-bottom:1px solid #374151}
-
 img{width:45px;height:45px;object-fit:cover;border-radius:6px}
-
 .hidden{display:none}
-
-.login{
-max-width:300px;
-margin:100px auto;
-background:#1f2937;
-padding:18px;
-border-radius:8px;
-}
-
-.stat{
-background:#1f2937;
-padding:12px;
-border-radius:8px;
-margin-bottom:8px;
-font-size:15px;
-}
+.login{max-width:300px;margin:100px auto;background:#1f2937;padding:18px;border-radius:8px}
+.stat{background:#1f2937;padding:12px;border-radius:8px;margin-bottom:8px;font-size:15px}
 </style>
 </head>
 <body>
@@ -146,7 +71,7 @@ font-size:15px;
 <option value="">Selecione categoria</option>
 </select>
 <input type="file" id="pImagem">
-<button class="primary" onclick="salvarProduto()">Salvar Produto</button>
+<button type="button" class="primary" onclick="salvarProduto()">Salvar Produto</button>
 </div>
 
 <table>
@@ -157,7 +82,7 @@ font-size:15px;
 <div id="categorias" class="section hidden">
 <div class="card">
 <input id="cNome" placeholder="Nome da categoria">
-<button class="primary" onclick="salvarCategoria()">Salvar Categoria</button>
+<button type="button" class="primary" onclick="salvarCategoria()">Salvar Categoria</button>
 </div>
 <ul id="listaCategorias"></ul>
 </div>
@@ -203,12 +128,14 @@ auth.signInWithEmailAndPassword(email.value,senha.value)
 
 function logout(){auth.signOut();}
 
-function toggleMenu(){sidebar.classList.toggle("active");}
+function toggleMenu(){
+document.getElementById("sidebar").classList.toggle("active");
+}
 
 function mostrar(sec){
 document.querySelectorAll(".section").forEach(s=>s.classList.add("hidden"));
 document.getElementById(sec).classList.remove("hidden");
-sidebar.classList.remove("active");
+document.getElementById("sidebar").classList.remove("active");
 }
 
 /* DASHBOARD */
@@ -240,15 +167,21 @@ pCategoria.innerHTML+=`<option value="${c.nome}">${c.nome}</option>`;
 
 /* PRODUTOS */
 async function salvarProduto(){
-if(!pNome.value||!pPreco.value||!pCategoria.value)
-return alert("Preencha tudo");
+
+if(!pNome.value || !pPreco.value || !pCategoria.value){
+alert("Preencha tudo");
+return;
+}
+
+try{
 
 let url="";
-if(pImagem.files[0]){
-let file=pImagem.files[0];
-let ref=storage.ref().child("produtos/"+Date.now()+"_"+file.name);
+
+if(pImagem.files.length > 0){
+let file = pImagem.files[0];
+let ref = storage.ref().child("produtos/"+Date.now()+"_"+file.name);
 await ref.put(file);
-url=await ref.getDownloadURL();
+url = await ref.getDownloadURL();
 }
 
 let dados={
@@ -258,13 +191,15 @@ estoque:parseInt(pEstoque.value)||0,
 categoria:pCategoria.value
 };
 
-if(url)dados.imagem=url;
+if(url) dados.imagem=url;
 
 if(editId){
 await db.collection("produtos").doc(editId).update(dados);
+alert("Produto atualizado!");
 editId=null;
 }else{
 await db.collection("produtos").add(dados);
+alert("Produto salvo!");
 }
 
 pNome.value="";
@@ -272,6 +207,11 @@ pPreco.value="";
 pEstoque.value="";
 pImagem.value="";
 pCategoria.value="";
+
+}catch(erro){
+alert("Erro ao salvar: "+erro.message);
+}
+
 }
 
 db.collection("produtos").onSnapshot(s=>{
