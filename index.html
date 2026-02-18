@@ -17,93 +17,24 @@ body{
   font-family:'Poppins',sans-serif;
   background:#050816;
   color:white;
-  overflow-x:hidden;
 }
 
-/* FUNDO */
-body::before{
-  content:"";
-  position:fixed;
-  width:200%;
-  height:200%;
-  background:radial-gradient(circle at center,#0f172a 0%,#050816 70%);
-  animation:bgMove 25s linear infinite;
-  z-index:-2;
-}
-
-@keyframes bgMove{
-  0%{transform:rotate(0deg);}
-  100%{transform:rotate(360deg);}
-}
-
-/* HEADER */
 .header{
-  background:rgba(10,15,30,0.85);
-  backdrop-filter:blur(10px);
-  padding:14px 18px;
+  background:rgba(10,15,30,0.9);
+  padding:14px;
   display:flex;
   justify-content:center;
-  align-items:center;
-  border-bottom:1px solid rgba(0,255,255,0.2);
+  border-bottom:1px solid rgba(0,255,255,0.3);
 }
 
 .logo{
   font-family:'Orbitron',sans-serif;
   font-size:20px;
-  font-weight:700;
   background:linear-gradient(90deg,#00ffff,#7c3aed,#00ffff);
-  background-size:200% 200%;
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
-  animation:logoGlow 4s linear infinite;
-  letter-spacing:2px;
 }
 
-@keyframes logoGlow{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-/* SEARCH */
-.search-box{padding:12px 15px;}
-
-.search-box input{
-  width:100%;
-  padding:10px 14px;
-  border-radius:20px;
-  border:1px solid rgba(0,255,255,0.3);
-  background:rgba(255,255,255,0.05);
-  color:white;
-  font-size:13px;
-  outline:none;
-}
-
-/* CATEGORIAS */
-.categorias{
-  display:flex;
-  gap:8px;
-  padding:8px 15px;
-  overflow-x:auto;
-}
-
-.categorias button{
-  padding:6px 12px;
-  border-radius:18px;
-  border:1px solid rgba(0,255,255,0.3);
-  background:rgba(255,255,255,0.05);
-  color:white;
-  font-size:12px;
-  cursor:pointer;
-  transition:0.3s;
-}
-
-.categorias button.active{
-  background:linear-gradient(45deg,#00ffff,#7c3aed);
-  border:none;
-}
-
-/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -111,109 +42,107 @@ body::before{
   padding:12px;
 }
 
-/* CARD */
 .card{
-  position:relative;
+  background:rgba(255,255,255,0.05);
   border-radius:14px;
   overflow:hidden;
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(14px);
-  transition:transform 0.2s ease, box-shadow 0.2s ease;
-  transform-style:preserve-3d;
-  will-change:transform;
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(0,255,255,0.2);
 }
 
-/* BORDA RGB */
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:14px;
-  padding:2px;
-  background:linear-gradient(45deg,#00ffff,#7c3aed,#00ffcc,#00ffff);
-  background-size:300% 300%;
-  animation:rgbMove 3s linear infinite;
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-}
-
-@keyframes rgbMove{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
-}
-
-/* HOVER NEON */
-.card:hover{
-  box-shadow:
-    0 0 10px rgba(0,255,255,0.6),
-    0 0 20px rgba(124,58,237,0.5);
-}
-
-/* IMAGEM */
 .card img{
   width:100%;
-  height:95px;
+  height:100px;
   object-fit:cover;
-  transition:0.3s;
-}
-
-.card:hover img{
-  filter:brightness(1.1) contrast(1.1);
 }
 
 .card-content{padding:8px;}
 
-.badge{
-  font-size:9px;
-  background:rgba(0,255,150,0.2);
-  padding:3px 6px;
-  border-radius:12px;
-  display:inline-block;
-  margin-bottom:4px;
-}
-
-.preco-antigo{
-  text-decoration:line-through;
-  color:#9ca3af;
-  font-size:11px;
-}
-
 .preco{
-  font-weight:700;
-  font-size:14px;
-  margin:3px 0;
   color:#00ffff;
+  font-weight:700;
 }
 
-.pix{
-  font-size:10px;
-  color:#22c55e;
-  margin-bottom:5px;
-}
-
-/* BOTÃO */
 .card button{
   width:100%;
-  padding:7px;
+  margin-top:6px;
+  padding:6px;
   border:none;
-  border-radius:18px;
+  border-radius:16px;
   background:linear-gradient(45deg,#00ffff,#7c3aed);
   color:white;
   font-size:12px;
-  font-weight:600;
   cursor:pointer;
-  transition:0.3s;
 }
 
-.card button:hover{
-  transform:scale(1.05);
-  box-shadow:0 0 15px rgba(0,255,255,0.7);
+.cart-float{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:linear-gradient(45deg,#00ffff,#7c3aed);
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(0,255,255,0.6);
+  z-index:999;
 }
 
-@media(max-width:360px){
-  .grid{grid-template-columns:1fr;}
+.cart-count{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:red;
+  width:20px;
+  height:20px;
+  font-size:12px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.cart-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+
+.cart-content{
+  background:#0f172a;
+  width:90%;
+  max-width:400px;
+  padding:20px;
+  border-radius:16px;
+  border:1px solid rgba(0,255,255,0.4);
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+  font-size:13px;
+}
+
+.total{
+  margin-top:10px;
+  font-weight:bold;
+  color:#00ffff;
+}
+
+.close-btn{
+  text-align:right;
+  cursor:pointer;
+  margin-bottom:10px;
+  color:#ff4d4d;
 }
 </style>
 </head>
@@ -223,12 +152,21 @@ body::before{
   <div class="logo">Eclipseforn</div>
 </div>
 
-<div class="search-box">
-  <input type="text" id="search" placeholder="Buscar produto...">
+<div class="grid" id="listaProdutos"></div>
+
+<div class="cart-float" onclick="abrirCarrinho()">
+  🛒
+  <div class="cart-count" id="cartCount">0</div>
 </div>
 
-<div class="categorias" id="listaCategorias"></div>
-<div class="grid" id="listaProdutos"></div>
+<div class="cart-modal" id="cartModal">
+  <div class="cart-content">
+    <div class="close-btn" onclick="fecharCarrinho()">Fechar ✖</div>
+    <div id="cartItems"></div>
+    <div class="total" id="cartTotal"></div>
+    <button onclick="finalizarPedido()">Finalizar Pedido</button>
+  </div>
+</div>
 
 <script>
 const firebaseConfig={
@@ -241,104 +179,128 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const numeroWhats="5531993178577";
 
-let produtos=[];
-let categoriaSelecionada="";
-
-db.collection("categorias").onSnapshot(snapshot=>{
-  const container=document.getElementById("listaCategorias");
-  container.innerHTML=`<button class="active" onclick="filtrarCategoria('')">Todas</button>`;
-  snapshot.forEach(doc=>{
-    let c=doc.data();
-    container.innerHTML+=`<button onclick="filtrarCategoria('${c.nome}')">${c.nome}</button>`;
-  });
-});
+let carrinho=[];
+let produtosCache={};
 
 db.collection("produtos").onSnapshot(snapshot=>{
-  produtos=[];
-  snapshot.forEach(doc=>{
-    produtos.push({...doc.data(),id:doc.id});
-  });
-  renderProdutos(produtos);
-  ativar3D();
-});
-
-function filtrarCategoria(cat){
-  categoriaSelecionada=cat;
-  document.querySelectorAll(".categorias button").forEach(btn=>{
-    btn.classList.remove("active");
-    if(btn.innerText===cat || (cat==="" && btn.innerText==="Todas")){
-      btn.classList.add("active");
-    }
-  });
-  aplicarFiltros();
-}
-
-function aplicarFiltros(){
-  let lista=produtos;
-  if(categoriaSelecionada){
-    lista=lista.filter(p=>p.categoria===categoriaSelecionada);
-  }
-  let texto=document.getElementById("search").value.toLowerCase();
-  if(texto){
-    lista=lista.filter(p=>p.nome.toLowerCase().includes(texto));
-  }
-  renderProdutos(lista);
-  ativar3D();
-}
-
-function renderProdutos(lista){
   const container=document.getElementById("listaProdutos");
   container.innerHTML="";
-  lista.forEach(p=>{
-    if(!p.categoria) return;
-    let precoAntigo=(p.preco*1.3).toFixed(2);
-    let desconto=Math.floor(100-(p.preco/precoAntigo*100));
+  produtosCache={};
+
+  snapshot.forEach(doc=>{
+    let p=doc.data();
+    produtosCache[doc.id]={...p,id:doc.id};
+
+    const semEstoque = (p.estoque !== undefined && p.estoque <= 0);
+
     container.innerHTML+=`
-      <div class="card">
-        <img src="${p.imagem || 'https://via.placeholder.com/300'}">
+      <div class="card" style="${semEstoque ? 'opacity:0.6;filter:grayscale(40%);' : ''}">
+        <div style="position:relative;">
+          <img src="${p.imagem}">
+          ${semEstoque ? `
+            <div style="position:absolute;top:8px;right:8px;
+              background:linear-gradient(45deg,#ff0000,#ff4d4d);
+              padding:4px 8px;font-size:11px;font-weight:bold;
+              border-radius:8px;box-shadow:0 0 10px red;">
+              ESGOTADO
+            </div>
+          ` : ``}
+        </div>
         <div class="card-content">
-          <div class="badge">⬇ ${desconto}% OFF</div>
           <div>${p.nome}</div>
-          <div class="preco-antigo">R$ ${precoAntigo}</div>
           <div class="preco">R$ ${p.preco}</div>
-          <div class="pix">⚡ À vista no PIX</div>
-          <button onclick="comprar('${p.id}','${p.nome}',${p.preco})">Comprar</button>
+          ${p.estoque !== undefined ? 
+            `<div style="font-size:11px;color:#ccc;">
+              ${semEstoque ? 'Sem estoque' : 'Estoque: '+p.estoque}
+            </div>` : ``}
+          <button onclick="comprarAgora('${doc.id}')" ${semEstoque?'disabled style="opacity:0.5;"':''}>Comprar Agora</button>
+          <button onclick="adicionarCarrinho('${doc.id}')" ${semEstoque?'disabled style="opacity:0.5;"':''}>Adicionar ao Carrinho</button>
         </div>
       </div>
     `;
   });
+});
+
+function comprarAgora(id){
+  const p=produtosCache[id];
+  if(p.estoque!==undefined && p.estoque<=0){alert("Produto esgotado!");return;}
+  let mensagem=`Olá! Quero comprar: ${p.nome} - R$ ${p.preco}`;
+  window.open(`https://wa.me/${numeroWhats}?text=${encodeURIComponent(mensagem)}`,"_blank");
 }
 
-document.getElementById("search").addEventListener("input",aplicarFiltros);
+function adicionarCarrinho(id){
+  const p=produtosCache[id];
+  if(p.estoque!==undefined && p.estoque<=0){alert("Produto esgotado!");return;}
+  carrinho.push(id);
+  atualizarCarrinho();
+}
 
-function comprar(id,nome,preco){
-  let mensagem=`Olá! Quero comprar: ${nome} - R$ ${preco}`;
-  let url=`https://wa.me/${numeroWhats}?text=${encodeURIComponent(mensagem)}`;
-  window.open(url,"_blank");
+function atualizarCarrinho(){
+  document.getElementById("cartCount").innerText=carrinho.length;
+}
+
+function abrirCarrinho(){
+  renderCarrinho();
+  document.getElementById("cartModal").style.display="flex";
+}
+
+function fecharCarrinho(){
+  document.getElementById("cartModal").style.display="none";
+}
+
+function renderCarrinho(){
+  const container=document.getElementById("cartItems");
+  container.innerHTML="";
+  let total=0;
+  carrinho.forEach((id,index)=>{
+    const p=produtosCache[id];
+    total+=p.preco;
+    container.innerHTML+=`
+      <div class="cart-item">
+        ${p.nome} - R$ ${p.preco}
+        <span onclick="removerItem(${index})" style="cursor:pointer;color:red;">✖</span>
+      </div>
+    `;
+  });
+  document.getElementById("cartTotal").innerText="Total: R$ "+total.toFixed(2);
+}
+
+function removerItem(index){
+  carrinho.splice(index,1);
+  atualizarCarrinho();
+  renderCarrinho();
+}
+
+function finalizarPedido(){
+  if(carrinho.length===0){alert("Carrinho vazio!");return;}
+
+  let mensagem="Olá! Quero finalizar meu pedido:%0A%0A";
+  let total=0;
+  let batch=db.batch();
+
+  carrinho.forEach(id=>{
+    const p=produtosCache[id];
+    total+=p.preco;
+    mensagem+=`- ${p.nome} - R$ ${p.preco}%0A`;
+    if(p.estoque!==undefined && p.estoque>0){
+      batch.update(db.collection("produtos").doc(id),{estoque:p.estoque-1});
+    }
+  });
+
+  mensagem+=`%0ATotal: R$ ${total.toFixed(2)}`;
+  batch.commit();
+
   db.collection("pedidos").add({
-    produto:nome,
-    total:preco,
+    itens:carrinho,
+    total:total,
     data:new Date()
   });
-}
 
-/* EFEITO 3D */
-function ativar3D(){
-  document.querySelectorAll(".card").forEach(card=>{
-    card.addEventListener("mousemove",e=>{
-      const rect=card.getBoundingClientRect();
-      const x=e.clientX-rect.left;
-      const y=e.clientY-rect.top;
-      const centerX=rect.width/2;
-      const centerY=rect.height/2;
-      const rotateX=((y-centerY)/centerY)*-8;
-      const rotateY=((x-centerX)/centerX)*8;
-      card.style.transform=`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    });
-    card.addEventListener("mouseleave",()=>{
-      card.style.transform="rotateX(0) rotateY(0)";
-    });
-  });
+  window.open(`https://wa.me/${numeroWhats}?text=${mensagem}`,"_blank");
+
+  carrinho=[];
+  atualizarCarrinho();
+  fecharCarrinho();
 }
 </script>
 
