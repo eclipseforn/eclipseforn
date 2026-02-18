@@ -12,7 +12,7 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:white;font-size:14px}
-.topbar{background:#111827;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.topbar{background:#111827;padding:12px;display:flex;justify-content:space-between}
 .sidebar{position:fixed;top:0;left:-240px;width:220px;height:100%;background:#111827;padding:15px;transition:.3s}
 .sidebar.active{left:0}
 .sidebar button{width:100%;padding:10px;margin-bottom:8px;background:#1f2937;border:none;color:white;border-radius:6px}
@@ -22,7 +22,8 @@ input,select{width:100%;padding:8px;margin:5px 0;background:#0f172a;border:1px s
 button.primary{background:#2563eb;border:none;padding:10px;border-radius:6px;color:white;width:100%}
 .stat{background:#1f2937;padding:12px;border-radius:8px;margin-bottom:8px}
 .hidden{display:none}
-img{width:45px;height:45px;object-fit:cover;border-radius:6px}
+.small-btn{background:#374151;border:none;color:white;padding:5px 8px;border-radius:4px;margin-right:5px}
+.danger{background:#dc2626}
 </style>
 </head>
 <body>
@@ -45,7 +46,6 @@ img{width:45px;height:45px;object-fit:cover;border-radius:6px}
 <button data-page="dashboard">Dashboard</button>
 <button data-page="produtos">Produtos</button>
 <button data-page="categorias">Categorias</button>
-<button data-page="pedidos">Pedidos</button>
 <button id="logout">Sair</button>
 </div>
 
@@ -54,8 +54,6 @@ img{width:45px;height:45px;object-fit:cover;border-radius:6px}
 <div id="dashboard" class="page">
 <div class="stat">Produtos: <span id="totalProdutos">0</span></div>
 <div class="stat">Categorias: <span id="totalCategorias">0</span></div>
-<div class="stat">Pedidos: <span id="totalPedidos">0</span></div>
-<div class="stat">Total Vendido: R$ <span id="totalVendido">0</span></div>
 </div>
 
 <div id="produtos" class="page hidden">
@@ -78,10 +76,6 @@ img{width:45px;height:45px;object-fit:cover;border-radius:6px}
 <div id="listaCategorias"></div>
 </div>
 
-<div id="pedidos" class="page hidden">
-<div id="listaPedidos"></div>
-</div>
-
 </div>
 </div>
 
@@ -98,116 +92,124 @@ const auth=firebase.auth();
 const db=firebase.firestore();
 const storage=firebase.storage();
 
-let editId=null;
+let editProdutoId=null;
+let editCategoriaId=null;
 
-const loginPage=document.getElementById("loginPage");
-const app=document.getElementById("app");
+/* LOGIN */
+btnLogin.onclick=()=>{
+auth.signInWithEmailAndPassword(email.value,senha.value)
+.catch(e=>alert(e.message));
+};
+
+logout.onclick=()=>auth.signOut();
 
 auth.onAuthStateChanged(user=>{
 if(user){
 loginPage.classList.add("hidden");
 app.classList.remove("hidden");
 carregarDashboard();
-}else{
-loginPage.classList.remove("hidden");
-app.classList.add("hidden");
 }
 });
 
-document.getElementById("btnLogin").onclick=()=>{
-auth.signInWithEmailAndPassword(
-document.getElementById("email").value,
-document.getElementById("senha").value
-).catch(e=>alert(e.message));
-};
-
-document.getElementById("logout").onclick=()=>auth.signOut();
-
-document.getElementById("menuBtn").onclick=()=>{
-document.getElementById("sidebar").classList.toggle("active");
-};
-
+/* MENU */
+menuBtn.onclick=()=>sidebar.classList.toggle("active");
 document.querySelectorAll("[data-page]").forEach(btn=>{
 btn.onclick=()=>{
 document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
 document.getElementById(btn.dataset.page).classList.remove("hidden");
-document.getElementById("sidebar").classList.remove("active");
+sidebar.classList.remove("active");
 };
 });
 
+/* DASHBOARD */
 function carregarDashboard(){
 db.collection("produtos").onSnapshot(s=>{
-document.getElementById("totalProdutos").innerText=s.size;
+totalProdutos.innerText=s.size;
 });
 db.collection("categorias").onSnapshot(s=>{
-document.getElementById("totalCategorias").innerText=s.size;
-});
-db.collection("vendas").onSnapshot(s=>{
-document.getElementById("totalPedidos").innerText=s.size;
-let total=0;
-s.forEach(doc=>total+=doc.data().total||0);
-document.getElementById("totalVendido").innerText=total.toFixed(2);
+totalCategorias.innerText=s.size;
 });
 }
 
 /* CATEGORIAS */
-document.getElementById("salvarCategoria").onclick=()=>{
-let nome=document.getElementById("cNome").value;
-if(!nome)return;
-db.collection("categorias").add({nome});
-document.getElementById("cNome").value="";
+salvarCategoria.onclick=async()=>{
+if(!cNome.value)return;
+
+if(editCategoriaId){
+await db.collection("categorias").doc(editCategoriaId).update({nome:cNome.value});
+editCategoriaId=null;
+}else{
+await db.collection("categorias").add({nome:cNome.value});
+}
+
+cNome.value="";
 };
 
 db.collection("categorias").onSnapshot(s=>{
-let lista="";
+let html="";
 let select="<option value=''>Selecione categoria</option>";
 s.forEach(doc=>{
-lista+=`<div>${doc.data().nome}</div>`;
-select+=`<option value="${doc.data().nome}">${doc.data().nome}</option>`;
+let c=doc.data();
+html+=`
+<div class="card">
+${c.nome}
+<button class="small-btn" data-edit="${doc.id}">Editar</button>
+<button class="small-btn danger" data-delete="${doc.id}">Excluir</button>
+</div>`;
+select+=`<option value="${c.nome}">${c.nome}</option>`;
 });
-document.getElementById("listaCategorias").innerHTML=lista;
-document.getElementById("pCategoria").innerHTML=select;
+listaCategorias.innerHTML=html;
+pCategoria.innerHTML=select;
+
+/* Eventos categoria */
+document.querySelectorAll("[data-edit]").forEach(btn=>{
+btn.onclick=()=>{
+editCategoriaId=btn.dataset.edit;
+cNome.value=btn.parentElement.firstChild.textContent.trim();
+};
+});
+document.querySelectorAll("[data-delete]").forEach(btn=>{
+btn.onclick=()=>{
+db.collection("categorias").doc(btn.dataset.delete).delete();
+};
+});
 });
 
 /* PRODUTOS */
-document.getElementById("salvarProduto").onclick=async()=>{
-let nome=document.getElementById("pNome").value;
-let preco=document.getElementById("pPreco").value;
-let estoque=document.getElementById("pEstoque").value;
-let categoria=document.getElementById("pCategoria").value;
-let imagemInput=document.getElementById("pImagem");
-
-if(!nome||!preco||!categoria){alert("Preencha tudo");return;}
+salvarProduto.onclick=async()=>{
+if(!pNome.value||!pPreco.value||!pCategoria.value){
+alert("Preencha tudo");
+return;
+}
 
 let imagemURL="";
-
-if(imagemInput.files.length>0){
-let file=imagemInput.files[0];
+if(pImagem.files.length>0){
+let file=pImagem.files[0];
 let ref=storage.ref("produtos/"+Date.now()+"_"+file.name);
 await ref.put(file);
 imagemURL=await ref.getDownloadURL();
 }
 
 let dados={
-nome,
-preco:parseFloat(preco),
-estoque:parseInt(estoque)||0,
-categoria
+nome:pNome.value,
+preco:parseFloat(pPreco.value),
+estoque:parseInt(pEstoque.value)||0,
+categoria:pCategoria.value
 };
 
 if(imagemURL)dados.imagem=imagemURL;
 
-if(editId){
-await db.collection("produtos").doc(editId).update(dados);
-editId=null;
+if(editProdutoId){
+await db.collection("produtos").doc(editProdutoId).update(dados);
+editProdutoId=null;
 }else{
 await db.collection("produtos").add(dados);
 }
 
-document.getElementById("pNome").value="";
-document.getElementById("pPreco").value="";
-document.getElementById("pEstoque").value="";
-document.getElementById("pImagem").value="";
+pNome.value="";
+pPreco.value="";
+pEstoque.value="";
+pImagem.value="";
 };
 
 db.collection("produtos").onSnapshot(s=>{
@@ -216,14 +218,28 @@ s.forEach(doc=>{
 let p=doc.data();
 html+=`
 <div class="card">
-${p.imagem?`<img src="${p.imagem}">`:""}
-<div>${p.nome}</div>
-<div>R$ ${p.preco}</div>
-<button onclick="editId='${doc.id}';document.getElementById('pNome').value='${p.nome}';document.getElementById('pPreco').value='${p.preco}';document.getElementById('pEstoque').value='${p.estoque||0}';document.getElementById('pCategoria').value='${p.categoria}'">Editar</button>
-<button onclick="db.collection('produtos').doc('${doc.id}').delete()">Excluir</button>
+${p.nome} - R$ ${p.preco}
+<button class="small-btn" data-editp="${doc.id}">Editar</button>
+<button class="small-btn danger" data-deletep="${doc.id}">Excluir</button>
 </div>`;
 });
-document.getElementById("listaProdutos").innerHTML=html;
+listaProdutos.innerHTML=html;
+
+document.querySelectorAll("[data-editp]").forEach(btn=>{
+btn.onclick=()=>{
+editProdutoId=btn.dataset.editp;
+let p=s.docs.find(d=>d.id===editProdutoId).data();
+pNome.value=p.nome;
+pPreco.value=p.preco;
+pEstoque.value=p.estoque||0;
+pCategoria.value=p.categoria;
+};
+});
+document.querySelectorAll("[data-deletep]").forEach(btn=>{
+btn.onclick=()=>{
+db.collection("produtos").doc(btn.dataset.deletep).delete();
+};
+});
 });
 </script>
 
