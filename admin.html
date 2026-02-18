@@ -8,7 +8,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:white;font-size:14px}
@@ -24,6 +23,7 @@ button.primary{background:#2563eb;border:none;padding:10px;border-radius:6px;col
 .hidden{display:none}
 .small-btn{background:#374151;border:none;color:white;padding:5px 8px;border-radius:4px;margin-right:5px}
 .danger{background:#dc2626}
+img{width:60px;height:60px;object-fit:cover;border-radius:6px;margin-top:5px}
 </style>
 </head>
 <body>
@@ -62,7 +62,7 @@ button.primary{background:#2563eb;border:none;padding:10px;border-radius:6px;col
 <input id="pPreco" type="number" placeholder="Preço">
 <input id="pEstoque" type="number" placeholder="Estoque">
 <select id="pCategoria"></select>
-<input type="file" id="pImagem">
+<input type="text" id="pImagemUrl" placeholder="Cole a URL da imagem">
 <button id="salvarProduto" class="primary">Salvar Produto</button>
 </div>
 <div id="listaProdutos"></div>
@@ -83,14 +83,12 @@ button.primary{background:#2563eb;border:none;padding:10px;border-radius:6px;col
 const firebaseConfig={
 apiKey:"AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
 authDomain:"minha-loja-digital1.firebaseapp.com",
-projectId:"minha-loja-digital1",
-storageBucket:"minha-loja-digital1.appspot.com"
+projectId:"minha-loja-digital1"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
-const storage=firebase.storage();
 
 let editProdutoId=null;
 let editCategoriaId=null;
@@ -148,6 +146,7 @@ cNome.value="";
 db.collection("categorias").onSnapshot(s=>{
 let html="";
 let select="<option value=''>Selecione categoria</option>";
+
 s.forEach(doc=>{
 let c=doc.data();
 html+=`
@@ -158,16 +157,17 @@ ${c.nome}
 </div>`;
 select+=`<option value="${c.nome}">${c.nome}</option>`;
 });
+
 listaCategorias.innerHTML=html;
 pCategoria.innerHTML=select;
 
-/* Eventos categoria */
 document.querySelectorAll("[data-edit]").forEach(btn=>{
 btn.onclick=()=>{
 editCategoriaId=btn.dataset.edit;
 cNome.value=btn.parentElement.firstChild.textContent.trim();
 };
 });
+
 document.querySelectorAll("[data-delete]").forEach(btn=>{
 btn.onclick=()=>{
 db.collection("categorias").doc(btn.dataset.delete).delete();
@@ -182,22 +182,13 @@ alert("Preencha tudo");
 return;
 }
 
-let imagemURL="";
-if(pImagem.files.length>0){
-let file=pImagem.files[0];
-let ref=storage.ref("produtos/"+Date.now()+"_"+file.name);
-await ref.put(file);
-imagemURL=await ref.getDownloadURL();
-}
-
 let dados={
 nome:pNome.value,
 preco:parseFloat(pPreco.value),
 estoque:parseInt(pEstoque.value)||0,
-categoria:pCategoria.value
+categoria:pCategoria.value,
+imagem:pImagemUrl.value||""
 };
-
-if(imagemURL)dados.imagem=imagemURL;
 
 if(editProdutoId){
 await db.collection("produtos").doc(editProdutoId).update(dados);
@@ -209,7 +200,7 @@ await db.collection("produtos").add(dados);
 pNome.value="";
 pPreco.value="";
 pEstoque.value="";
-pImagem.value="";
+pImagemUrl.value="";
 };
 
 db.collection("produtos").onSnapshot(s=>{
@@ -218,11 +209,15 @@ s.forEach(doc=>{
 let p=doc.data();
 html+=`
 <div class="card">
-${p.nome} - R$ ${p.preco}
+<strong>${p.nome}</strong><br>
+R$ ${p.preco}<br>
+${p.imagem?`<img src="${p.imagem}">`:""}
+<br>
 <button class="small-btn" data-editp="${doc.id}">Editar</button>
 <button class="small-btn danger" data-deletep="${doc.id}">Excluir</button>
 </div>`;
 });
+
 listaProdutos.innerHTML=html;
 
 document.querySelectorAll("[data-editp]").forEach(btn=>{
@@ -233,8 +228,10 @@ pNome.value=p.nome;
 pPreco.value=p.preco;
 pEstoque.value=p.estoque||0;
 pCategoria.value=p.categoria;
+pImagemUrl.value=p.imagem||"";
 };
 });
+
 document.querySelectorAll("[data-deletep]").forEach(btn=>{
 btn.onclick=()=>{
 db.collection("produtos").doc(btn.dataset.deletep).delete();
