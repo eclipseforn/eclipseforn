@@ -42,6 +42,15 @@ body{
   padding:12px;
 }
 
+.categoria-titulo{
+  grid-column:1/-1;
+  margin:20px 0 10px;
+  font-family:'Orbitron';
+  color:#00ffff;
+  border-bottom:1px solid rgba(0,255,255,0.3);
+  padding-bottom:5px;
+}
+
 .card{
   background:rgba(255,255,255,0.05);
   border-radius:14px;
@@ -187,37 +196,52 @@ db.collection("produtos").onSnapshot(snapshot=>{
   container.innerHTML="";
   produtosCache={};
 
+  let categorias={};
+
   snapshot.forEach(doc=>{
     let p=doc.data();
     produtosCache[doc.id]={...p,id:doc.id};
 
-    const semEstoque = (p.estoque !== undefined && p.estoque <= 0);
+    let cat=p.categoria || "Outros";
 
-    container.innerHTML+=`
-      <div class="card" style="${semEstoque ? 'opacity:0.6;filter:grayscale(40%);' : ''}">
-        <div style="position:relative;">
-          <img src="${p.imagem}">
-          ${semEstoque ? `
-            <div style="position:absolute;top:8px;right:8px;
-              background:linear-gradient(45deg,#ff0000,#ff4d4d);
-              padding:4px 8px;font-size:11px;font-weight:bold;
-              border-radius:8px;box-shadow:0 0 10px red;">
-              ESGOTADO
-            </div>
-          ` : ``}
+    if(!categorias[cat]){
+      categorias[cat]=[];
+    }
+
+    categorias[cat].push({...p,id:doc.id});
+  });
+
+  Object.keys(categorias).forEach(cat=>{
+    container.innerHTML+=`<div class="categoria-titulo">${cat}</div>`;
+
+    categorias[cat].forEach(p=>{
+      const semEstoque=(p.estoque!==undefined && p.estoque<=0);
+
+      container.innerHTML+=`
+        <div class="card" style="${semEstoque?'opacity:0.6;filter:grayscale(40%);':''}">
+          <div style="position:relative;">
+            <img src="${p.imagem}">
+            ${semEstoque?`
+              <div style="position:absolute;top:8px;right:8px;
+                background:linear-gradient(45deg,#ff0000,#ff4d4d);
+                padding:4px 8px;font-size:11px;font-weight:bold;
+                border-radius:8px;box-shadow:0 0 10px red;">
+                ESGOTADO
+              </div>`:''}
+          </div>
+          <div class="card-content">
+            <div>${p.nome}</div>
+            <div class="preco">R$ ${p.preco}</div>
+            ${p.estoque!==undefined?
+              `<div style="font-size:11px;color:#ccc;">
+                ${semEstoque?'Sem estoque':'Estoque: '+p.estoque}
+              </div>`:''}
+            <button onclick="comprarAgora('${p.id}')" ${semEstoque?'disabled style="opacity:0.5;"':''}>Comprar Agora</button>
+            <button onclick="adicionarCarrinho('${p.id}')" ${semEstoque?'disabled style="opacity:0.5;"':''}>Adicionar ao Carrinho</button>
+          </div>
         </div>
-        <div class="card-content">
-          <div>${p.nome}</div>
-          <div class="preco">R$ ${p.preco}</div>
-          ${p.estoque !== undefined ? 
-            `<div style="font-size:11px;color:#ccc;">
-              ${semEstoque ? 'Sem estoque' : 'Estoque: '+p.estoque}
-            </div>` : ``}
-          <button onclick="comprarAgora('${doc.id}')" ${semEstoque?'disabled style="opacity:0.5;"':''}>Comprar Agora</button>
-          <button onclick="adicionarCarrinho('${doc.id}')" ${semEstoque?'disabled style="opacity:0.5;"':''}>Adicionar ao Carrinho</button>
-        </div>
-      </div>
-    `;
+      `;
+    });
   });
 });
 
@@ -259,8 +283,7 @@ function renderCarrinho(){
       <div class="cart-item">
         ${p.nome} - R$ ${p.preco}
         <span onclick="removerItem(${index})" style="cursor:pointer;color:red;">✖</span>
-      </div>
-    `;
+      </div>`;
   });
   document.getElementById("cartTotal").innerText="Total: R$ "+total.toFixed(2);
 }
