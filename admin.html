@@ -7,25 +7,14 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:white;}
-.topbar{background:#111827;padding:15px;display:flex;align-items:center;}
-.menu-btn{font-size:22px;cursor:pointer;margin-right:15px;}
-.sidebar{position:fixed;left:-260px;top:0;width:260px;height:100%;background:#111827;padding-top:60px;transition:0.3s;z-index:1000;}
-.sidebar div{padding:15px;cursor:pointer;}
-.sidebar div:hover{background:#1f2937;}
-.sidebar.active{left:0;}
-.content{padding:20px;}
-.card{background:#1f2937;padding:20px;border-radius:10px;margin-bottom:20px;}
-input,select{width:100%;padding:8px;margin:5px 0;background:#111827;border:1px solid #374151;color:white;}
-button{padding:8px 12px;border:none;border-radius:6px;cursor:pointer;}
-.btn{background:#2563eb;color:white;}
-.btn-del{background:#dc2626;color:white;}
 .hidden{display:none;}
-table{width:100%;border-collapse:collapse;}
+input,select{width:100%;padding:8px;margin:5px 0;background:#111827;border:1px solid #374151;color:white;}
+button{padding:8px;border:none;background:#2563eb;color:white;border-radius:6px;cursor:pointer;margin-top:5px;}
+.card{background:#1f2937;padding:20px;border-radius:10px;margin:20px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
 th,td{padding:10px;border-bottom:1px solid #374151;}
 .login-box{max-width:300px;margin:100px auto;background:#1f2937;padding:30px;border-radius:10px;}
 </style>
@@ -37,232 +26,150 @@ th,td{padding:10px;border-bottom:1px solid #374151;}
     <h2>Login Admin</h2>
     <input id="email" placeholder="Email">
     <input id="senha" type="password" placeholder="Senha">
-    <button class="btn" onclick="login()">Entrar</button>
+    <button onclick="login()">Entrar</button>
   </div>
 </div>
 
 <div id="painel" class="hidden">
 
-<div class="topbar">
-  <div class="menu-btn" onclick="toggleMenu()">☰</div>
-  Painel Administrativo
+<div class="card">
+  <h3>Criar Categoria</h3>
+  <input id="cNome" placeholder="Nome da categoria">
+  <button onclick="salvarCategoria()">Salvar Categoria</button>
 </div>
 
-<div class="sidebar" id="sidebar">
-  <div onclick="mostrar('dashboard')">Dashboard</div>
-  <div onclick="mostrar('produtos')">Produtos</div>
-  <div onclick="mostrar('categorias')">Categorias</div>
-  <div onclick="logout()">Sair</div>
+<div class="card">
+  <h3>Criar Produto</h3>
+  <input id="pNome" placeholder="Nome">
+  <input id="pPreco" type="number" placeholder="Preço">
+  <input id="pEstoque" type="number" placeholder="Estoque">
+  <select id="pCategoria">
+    <option value="">Selecione uma categoria</option>
+  </select>
+  <button onclick="salvarProduto()">Salvar Produto</button>
 </div>
 
-<div class="content">
-
-<div id="dashboard">
-  <div class="card">
-    <h3>Total Vendido: R$ <span id="totalVendido">0</span></h3>
-    <canvas id="grafico"></canvas>
-  </div>
+<div class="card">
+  <h3>Produtos</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Preço</th>
+        <th>Categoria</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaProdutos"></tbody>
+  </table>
 </div>
 
-<div id="produtos" class="hidden">
-  <div class="card">
-    <h3>Criar / Editar Produto</h3>
-    <input id="pNome" placeholder="Nome">
-    <input id="pPreco" type="number" placeholder="Preço">
-    <input id="pEstoque" type="number" placeholder="Estoque">
-    <input type="file" id="pImagem">
-    <select id="pCategoria">
-      <option value="">Selecione uma categoria</option>
-    </select>
-    <input type="hidden" id="pId">
-    <button class="btn" onclick="salvarProduto()">Salvar</button>
-  </div>
-
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Preço</th>
-          <th>Estoque</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tabelaProdutos"></tbody>
-    </table>
-  </div>
-</div>
-
-<div id="categorias" class="hidden">
-  <div class="card">
-    <h3>Criar / Editar Categoria</h3>
-    <input id="cNome" placeholder="Nome">
-    <input type="hidden" id="cId">
-    <button class="btn" onclick="salvarCategoria()">Salvar</button>
-  </div>
-
-  <div class="card">
-    <table>
-      <thead>
-        <tr><th>Nome</th><th>Ações</th></tr>
-      </thead>
-      <tbody id="tabelaCategorias"></tbody>
-    </table>
-  </div>
-</div>
-
-</div>
 </div>
 
 <script>
 const firebaseConfig={
   apiKey:"AIzaSyDAnBNdufwLlMW4bZHK0mUgncmIezNSMTg",
   authDomain:"minha-loja-digital1.firebaseapp.com",
-  projectId:"minha-loja-digital1",
-  storageBucket:"minha-loja-digital1.firebasestorage.app",
-  messagingSenderId:"119834670597",
-  appId:"1:119834670597:web:36edb828d7fdded6678e6c"
+  projectId:"minha-loja-digital1"
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth=firebase.auth();
-const db=firebase.firestore();
-const storage=firebase.storage();
+
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 /* LOGIN */
 auth.onAuthStateChanged(user=>{
   if(user){
-    loginPage.classList.add("hidden");
-    painel.classList.remove("hidden");
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("painel").classList.remove("hidden");
   }else{
-    loginPage.classList.remove("hidden");
-    painel.classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
+    document.getElementById("painel").classList.add("hidden");
   }
 });
 
 function login(){
-  auth.signInWithEmailAndPassword(email.value,senha.value)
-  .catch(()=>alert("Erro no login"));
+  auth.signInWithEmailAndPassword(
+    document.getElementById("email").value,
+    document.getElementById("senha").value
+  ).catch(e=>alert(e.message));
 }
 
-function logout(){ auth.signOut(); }
-function toggleMenu(){ sidebar.classList.toggle("active"); }
-
-function mostrar(sec){
-  ["dashboard","produtos","categorias"].forEach(s=>document.getElementById(s).classList.add("hidden"));
-  document.getElementById(sec).classList.remove("hidden");
-  sidebar.classList.remove("active");
+function logout(){
+  auth.signOut();
 }
 
-/* DASHBOARD */
-let grafico;
-db.collection("pedidos").onSnapshot(snapshot=>{
-  let total=0;
-  snapshot.forEach(doc=> total+=doc.data().total||0 );
-  totalVendido.innerText=total.toFixed(2);
-
-  if(grafico)grafico.destroy();
-  grafico=new Chart(document.getElementById("grafico"),{
-    type:"line",
-    data:{labels:["Total"],datasets:[{label:"Faturamento",data:[total]}]}
-  });
-});
-
-/* CATEGORIAS */
-db.collection("categorias").onSnapshot(snapshot=>{
-  tabelaCategorias.innerHTML="";
-  pCategoria.innerHTML=`<option value="">Selecione uma categoria</option>`;
-
-  snapshot.forEach(doc=>{
-    let c=doc.data();
-
-    tabelaCategorias.innerHTML+=`
-      <tr>
-        <td>${c.nome}</td>
-        <td>
-          <button onclick="editarCategoria('${doc.id}','${c.nome}')">Editar</button>
-          <button class="btn-del" onclick="excluirCategoria('${doc.id}')">Excluir</button>
-        </td>
-      </tr>`;
-
-    pCategoria.innerHTML+=`<option value="${c.nome}">${c.nome}</option>`;
-  });
-});
+/* ===== CATEGORIAS ===== */
 
 function salvarCategoria(){
-  if(!cNome.value.trim()) return alert("Digite o nome da categoria");
+  const nome = document.getElementById("cNome").value.trim();
+  if(!nome) return alert("Digite o nome da categoria");
 
-  if(cId.value){
-    db.collection("categorias").doc(cId.value).update({nome:cNome.value});
-  }else{
-    db.collection("categorias").add({nome:cNome.value});
-  }
-
-  cNome.value="";
-  cId.value="";
+  db.collection("categorias").add({nome:nome})
+  .then(()=>{
+    alert("Categoria criada!");
+    document.getElementById("cNome").value="";
+  })
+  .catch(e=>alert(e.message));
 }
 
-function editarCategoria(id,nome){
-  cId.value=id;
-  cNome.value=nome;
-}
+db.collection("categorias").onSnapshot(snapshot=>{
+  const select = document.getElementById("pCategoria");
+  select.innerHTML = `<option value="">Selecione uma categoria</option>`;
 
-function excluirCategoria(id){
-  if(confirm("Excluir categoria?")){
-    db.collection("categorias").doc(id).delete();
-  }
-}
-
-/* PRODUTOS */
-db.collection("produtos").onSnapshot(snapshot=>{
-  tabelaProdutos.innerHTML="";
   snapshot.forEach(doc=>{
-    let p=doc.data();
-    tabelaProdutos.innerHTML+=`
-      <tr>
-        <td>${p.nome}</td>
-        <td>R$ ${p.preco}</td>
-        <td>${p.estoque||0}</td>
-        <td>
-          <button onclick="editarProduto('${doc.id}','${p.nome}','${p.preco}','${p.categoria}','${p.estoque||0}')">Editar</button>
-          <button class="btn-del" onclick="excluirProduto('${doc.id}')">Excluir</button>
-        </td>
-      </tr>`;
+    const c = doc.data();
+    select.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
   });
 });
 
-async function salvarProduto(){
-  if(!pNome.value || !pPreco.value || !pCategoria.value){
+/* ===== PRODUTOS ===== */
+
+function salvarProduto(){
+  const nome = document.getElementById("pNome").value.trim();
+  const preco = parseFloat(document.getElementById("pPreco").value);
+  const estoque = parseInt(document.getElementById("pEstoque").value) || 0;
+  const categoria = document.getElementById("pCategoria").value;
+
+  if(!nome || !preco || !categoria){
     return alert("Preencha nome, preço e categoria");
   }
 
-  let dados={
-    nome:pNome.value,
-    preco:parseFloat(pPreco.value),
-    categoria:pCategoria.value,
-    estoque:parseInt(pEstoque.value)||0
-  };
-
-  if(pId.value){
-    await db.collection("produtos").doc(pId.value).update(dados);
-  }else{
-    await db.collection("produtos").add({...dados,cliques:0});
-  }
-
-  pNome.value="";
-  pPreco.value="";
-  pEstoque.value="";
-  pCategoria.value="";
-  pId.value="";
+  db.collection("produtos").add({
+    nome:nome,
+    preco:preco,
+    estoque:estoque,
+    categoria:categoria
+  })
+  .then(()=>{
+    alert("Produto criado!");
+    document.getElementById("pNome").value="";
+    document.getElementById("pPreco").value="";
+    document.getElementById("pEstoque").value="";
+    document.getElementById("pCategoria").value="";
+  })
+  .catch(e=>alert(e.message));
 }
 
-function editarProduto(id,nome,preco,categoria,estoque){
-  pId.value=id;
-  pNome.value=nome;
-  pPreco.value=preco;
-  pCategoria.value=categoria;
-  pEstoque.value=estoque;
-}
+db.collection("produtos").onSnapshot(snapshot=>{
+  const tabela = document.getElementById("tabelaProdutos");
+  tabela.innerHTML="";
+
+  snapshot.forEach(doc=>{
+    const p = doc.data();
+
+    tabela.innerHTML+=`
+      <tr>
+        <td>${p.nome}</td>
+        <td>R$ ${p.preco}</td>
+        <td>${p.categoria}</td>
+        <td>
+          <button onclick="excluirProduto('${doc.id}')">Excluir</button>
+        </td>
+      </tr>`;
+  });
+});
 
 function excluirProduto(id){
   if(confirm("Excluir produto?")){
