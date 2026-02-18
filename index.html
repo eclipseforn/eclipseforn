@@ -44,7 +44,7 @@ body{
   padding:12px;
 }
 
-/* ===== CATEGORIA COM BORDA RGB REAL ===== */
+/* ===== CATEGORIA RGB ===== */
 .categoria-titulo{
   grid-column:1/-1;
   margin:18px 0 8px;
@@ -53,52 +53,50 @@ body{
   font-family:'Orbitron',sans-serif;
   font-size:14px;
   letter-spacing:1.5px;
-  color:#fff;
   border-radius:12px;
-  background:#0f172a;
-  border:2px solid transparent;
-  background-clip:padding-box;
   position:relative;
+  background:#0f172a;
 }
 
 .categoria-titulo::before{
   content:"";
   position:absolute;
   inset:0;
-  border-radius:12px;
   padding:2px;
+  border-radius:12px;
   background:linear-gradient(45deg,red,orange,yellow,green,cyan,blue,violet,red);
   background-size:400% 400%;
   animation:rgbBorder 6s linear infinite;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
   mask-composite:exclude;
   pointer-events:none;
 }
 
-/* CARD COM BORDA RGB REAL */
+/* ===== CARD RGB REAL ===== */
 .card{
   position:relative;
-  background:#0f172a;
   border-radius:16px;
-  overflow:hidden;
   padding:2px;
-  background:linear-gradient(#0f172a,#0f172a) padding-box,
-             linear-gradient(45deg,red,orange,yellow,green,cyan,blue,violet,red) border-box;
-  background-size:100% 100%,400% 400%;
+  background:linear-gradient(45deg,red,orange,yellow,green,cyan,blue,violet,red);
+  background-size:400% 400%;
   animation:rgbBorder 8s linear infinite;
 }
 
-.card-content{padding:8px;}
+.card-inner{
+  background:#0f172a;
+  border-radius:14px;
+  overflow:hidden;
+  padding-bottom:10px;
+}
 
 .card img{
   width:100%;
   height:110px;
   object-fit:cover;
-  border-radius:14px 14px 0 0;
 }
+
+.card-content{padding:8px;}
 
 .preco{
   color:#00ffff;
@@ -131,6 +129,18 @@ body{
   cursor:pointer;
 }
 
+.btn-comprar{
+  margin-top:8px;
+  width:100%;
+  padding:6px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(45deg,#00ffcc,#7c3aed);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
 .esgotado{
   margin-top:6px;
   text-align:center;
@@ -138,7 +148,6 @@ body{
   font-weight:bold;
 }
 
-/* CARRINHO */
 .cart-float{
   position:fixed;
   bottom:20px;
@@ -169,43 +178,6 @@ body{
   justify-content:center;
 }
 
-.cart-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.8);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-
-.cart-content{
-  background:#0f172a;
-  width:90%;
-  max-width:400px;
-  padding:20px;
-  border-radius:16px;
-  border:1px solid rgba(0,255,255,0.4);
-}
-
-.cart-item{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:8px;
-}
-
-.total{
-  margin-top:10px;
-  font-weight:bold;
-  color:#00ffff;
-}
-
-.close-btn{
-  text-align:right;
-  cursor:pointer;
-  margin-bottom:10px;
-  color:#ff4d4d;
-}
-
 @keyframes rgbBorder{
   0%{background-position:0% 50%;}
   100%{background-position:400% 50%;}
@@ -220,18 +192,9 @@ body{
 
 <div class="grid" id="listaProdutos"></div>
 
-<div class="cart-float" onclick="abrirCarrinho()">
+<div class="cart-float" onclick="finalizarPedido()">
 🛒
 <div class="cart-count" id="cartCount">0</div>
-</div>
-
-<div class="cart-modal" id="cartModal">
-  <div class="cart-content">
-    <div class="close-btn" onclick="fecharCarrinho()">Fechar ✖</div>
-    <div id="cartItems"></div>
-    <div class="total" id="cartTotal"></div>
-    <button onclick="finalizarPedido()">Finalizar Pedido</button>
-  </div>
 </div>
 
 <script>
@@ -263,21 +226,26 @@ db.collection("produtos").onSnapshot((snapshot)=>{
     categorias[cat].forEach(p=>{
       lista.innerHTML+=`
       <div class="card">
-        <img src="${p.imagem}">
-        <div class="card-content">
-          <div>${p.nome}</div>
-          <div class="preco-antigo">R$ ${(p.preco*1.5).toFixed(2)}</div>
-          <div class="preco">R$ ${p.preco.toFixed(2)}</div>
-          ${
-            p.estoque>0?
-            `<div class="quantidade-box">
-              <button onclick="alterarQtd('${p.id}','${p.nome}',${p.preco},${p.estoque},-1)">-</button>
-              <span id="qtd-${p.id}">0</span>
-              <button onclick="alterarQtd('${p.id}','${p.nome}',${p.preco},${p.estoque},1)">+</button>
-            </div>`
-            :
-            `<div class="esgotado">ESGOTADO</div>`
-          }
+        <div class="card-inner">
+          <img src="${p.imagem}">
+          <div class="card-content">
+            <div>${p.nome}</div>
+            <div class="preco-antigo">R$ ${(p.preco*1.5).toFixed(2)}</div>
+            <div class="preco">R$ ${p.preco.toFixed(2)}</div>
+            ${
+              p.estoque>0?
+              `<div class="quantidade-box">
+                <button onclick="alterarQtd('${p.id}','${p.nome}',${p.preco},${p.estoque},-1)">-</button>
+                <span id="qtd-${p.id}">0</span>
+                <button onclick="alterarQtd('${p.id}','${p.nome}',${p.preco},${p.estoque},1)">+</button>
+              </div>
+              <button class="btn-comprar" onclick="comprarDireto('${p.nome}',${p.preco})">
+              Finalizar Compra
+              </button>`
+              :
+              `<div class="esgotado">ESGOTADO</div>`
+            }
+          </div>
         </div>
       </div>`;
     });
@@ -291,46 +259,31 @@ function alterarQtd(id,nome,preco,estoque,valor){
   if(qtd<0) qtd=0;
   if(qtd>estoque) qtd=estoque;
   span.innerText=qtd;
+
   if(qtd>0){carrinho[nome]={qtd,preco};}
   else{delete carrinho[nome];}
-  atualizarCarrinho();
+
+  document.getElementById("cartCount").innerText=
+    Object.values(carrinho).reduce((a,b)=>a+b.qtd,0);
 }
 
-function atualizarCarrinho(){
-  let total=0, itens=0;
-  let html="";
-  for(let nome in carrinho){
-    let item=carrinho[nome];
-    total+=item.qtd*item.preco;
-    itens+=item.qtd;
-    html+=`<div class="cart-item">
-      <span>${nome} x${item.qtd}</span>
-      <span>R$ ${(item.qtd*item.preco).toFixed(2)}</span>
-    </div>`;
-  }
-  document.getElementById("cartItems").innerHTML=html;
-  document.getElementById("cartTotal").innerText="Total: R$ "+total.toFixed(2);
-  document.getElementById("cartCount").innerText=itens;
-}
-
-function abrirCarrinho(){
-  document.getElementById("cartModal").style.display="flex";
-}
-
-function fecharCarrinho(){
-  document.getElementById("cartModal").style.display="none";
+function comprarDireto(nome,preco){
+  let mensagem=`Pedido:%0A${nome}%0AValor: R$ ${preco.toFixed(2)}`;
+  window.open(`https://wa.me/5531993178577?text=${mensagem}`,"_blank");
 }
 
 function finalizarPedido(){
   let mensagem="Pedido:%0A";
   let total=0;
+
   for(let nome in carrinho){
     let item=carrinho[nome];
     mensagem+=`${nome} x${item.qtd}%0A`;
     total+=item.qtd*item.preco;
   }
+
   mensagem+=`Total: R$ ${total.toFixed(2)}`;
-  window.open(`https://wa.me/5599999999999?text=${mensagem}`,"_blank");
+  window.open(`https://wa.me/5531993178577?text=${mensagem}`,"_blank");
 }
 </script>
 
